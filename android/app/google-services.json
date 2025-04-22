@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "860380563914",
+    "firebase_url": "https://check31-a2fdf-default-rtdb.firebaseio.com",
+    "project_id": "check31-a2fdf",
+    "storage_bucket": "check31-a2fdf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:860380563914:android:4d34c5cc8f408560eba733",
+        "android_client_info": {
+          "package_name": "com.check31.dz.check31"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "860380563914-bep8qfk84d9udttcgatil2ahkt87gjit.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.check31.dz.check31",
+            "certificate_hash": "503bca0e7d9cf11193b8a34339154f33bc34aace"
+          }
+        },
+        {
+          "client_id": "860380563914-br8e86h8vvv01ivbg8pnnktab4f3lm1k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKSwvDdvOcwA8VKZmTK-VxGtopwsMdbRU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "860380563914-br8e86h8vvv01ivbg8pnnktab4f3lm1k.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "860380563914-3jsirpjg5momkuaib6ikn7lv0b54q0uj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.check31.dz.check31"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
