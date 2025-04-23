@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'users.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -440,13 +441,13 @@ class _HomePage3State extends State<HomePage3> {
               ),
         title: Text(
           _user != null
-              ? '${_user!.displayName ?? "Utilisateur"} Check-it'
-              : 'Unknow User Check-it',
+              ? '${_user!.displayName ?? "Utilisateur"}'
+              : 'Unknow User',
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             color: Colors.black45,
-            fontSize: 23,
+            fontSize: 20,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -507,6 +508,39 @@ class _HomePage3State extends State<HomePage3> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+                  FittedBox(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: const [
+                        Text(
+                          'Check',
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '.',
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
+                        Text(
+                          'it',
+                          style: TextStyle(
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 5,),
                   FittedBox(
                     child: Text(
                       'شكيت'.toUpperCase(),
@@ -794,6 +828,27 @@ class _HomePage3State extends State<HomePage3> {
                   ),
                   SizedBox(height: 16),
                   Spacer(),
+            Center(
+              child: InkWell(
+                onTap: () async {
+                  final Uri url = Uri.parse('https://check31-a2fdf.web.app/');
+                  if (await canLaunchUrl(url)) {
+                    await launchUrl(url);
+                  } else {
+                    throw 'Impossible d\'ouvrir $url';
+                  }
+                },
+                child: Text(
+                  'Cliquez ici pour visiter le site web',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ),
+
+
                   if (_bannerAd != null)
                     Expanded(
                       child: Container(
@@ -816,29 +871,7 @@ class _HomePage3State extends State<HomePage3> {
                   SizedBox(
                     height: 100,
                   ),
-                  // _user == null
-                  //     ? SizedBox.shrink()
-                  //     : ElevatedButton.icon(
-                  //         style: ElevatedButton.styleFrom(
-                  //           foregroundColor:
-                  //               Theme.of(context).colorScheme.onPrimary,
-                  //           backgroundColor:
-                  //               Theme.of(context).colorScheme.primary,
-                  //           shape: RoundedRectangleBorder(
-                  //             borderRadius: BorderRadius.circular(50.0),
-                  //           ),
-                  //           padding: EdgeInsets.symmetric(
-                  //               horizontal: 24, vertical: 16),
-                  //         ),
-                  //         onPressed: () => Navigator.of(context).push(
-                  //             MaterialPageRoute(
-                  //                 builder: (ctx) => EnhancedCallScreen())),
-                  //         label: Text("Journal des appels de mon tel"),
-                  //         icon: Icon(
-                  //           Icons.phone,
-                  //           color: Theme.of(context).colorScheme.onPrimary,
-                  //         ),
-                  //       ),
+
                   SizedBox(
                     height: 10,
                   )
@@ -1370,231 +1403,7 @@ class _googleBtnState extends State<googleBtn> {
     );
   }
 
-  // Widget _buildProfileUI(signalementProvider) {
-  //   return Column(
-  //     mainAxisAlignment: MainAxisAlignment.center,
-  //     crossAxisAlignment: CrossAxisAlignment.center,
-  //     children: [
-  //       Padding(
-  //         padding: const EdgeInsets.all(18.0),
-  //         child: Card(
-  //           elevation: 4,
-  //           shape:
-  //               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-  //           child: Padding(
-  //             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-  //             child: Column(
-  //               children: [
-  //                 Container(
-  //                   decoration: BoxDecoration(
-  //                     shape: BoxShape.circle,
-  //                     boxShadow: [
-  //                       BoxShadow(
-  //                         color: Colors.black.withOpacity(0.1),
-  //                         blurRadius: 8,
-  //                         offset: Offset(0, 4),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                   child: CircleAvatar(
-  //                     radius: 45,
-  //                     backgroundImage: _user?.photoURL != null
-  //                         ? NetworkImage(_user!.photoURL!)
-  //                         : AssetImage('assets/images/default_avatar.png')
-  //                             as ImageProvider,
-  //                   ),
-  //                 ),
-  //                 SizedBox(height: 16),
-  //                 Text(
-  //                   _user?.displayName ?? 'Utilisateur',
-  //                   style: TextStyle(
-  //                     fontSize: 20,
-  //                     fontWeight: FontWeight.bold,
-  //                     letterSpacing: 0.5,
-  //                   ),
-  //                 ),
-  //                 SizedBox(height: 4),
-  //                 Text(
-  //                   _user?.email ?? '',
-  //                   style: TextStyle(
-  //                     fontSize: 16,
-  //                     color: Colors.grey[600],
-  //                   ),
-  //                 ),
-  //                 SizedBox(height: 20),
-  //                 SizedBox(
-  //                   width: double.infinity,
-  //                   child: ElevatedButton.icon(
-  //                     style: ElevatedButton.styleFrom(
-  //                       backgroundColor: Theme.of(context).colorScheme.primary,
-  //                       foregroundColor:
-  //                           Theme.of(context).colorScheme.onPrimary,
-  //                       padding: EdgeInsets.symmetric(vertical: 14),
-  //                       shape: RoundedRectangleBorder(
-  //                         borderRadius: BorderRadius.circular(12),
-  //                       ),
-  //                     ),
-  //                     onPressed: _handleSignOut,
-  //                     icon: Icon(
-  //                       Icons.logout,
-  //                       color: Theme.of(context).colorScheme.onPrimary,
-  //                     ),
-  //                     label: Text('Se déconnecter'),
-  //                   ),
-  //                 ),
-  //                 const SizedBox(height: 30),
-  //                 TextButton(
-  //                   onPressed: () => _showDeleteAccountConfirmation(context),
-  //                   child: const Text(
-  //                     'Supprimer définitivement mon compte',
-  //                     style: TextStyle(
-  //                       color: Colors.red,
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //       Padding(
-  //         padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-  //         child: Divider(),
-  //       ),
-  //       _reportedNumbers.length == 0
-  //           ? Expanded(
-  //               child: Padding(
-  //               padding: const EdgeInsets.symmetric(vertical: 30),
-  //               child: Lottie.asset('assets/lotties/1 (123).json'),
-  //             ))
-  //           : _buildReportedNumbersList(signalementProvider),
-  //     ],
-  //   );
-  // }
-  //
-  // Widget _buildReportedNumbersList(signalementProvider) {
-  //   return Expanded(
-  //     child: NotificationListener<ScrollNotification>(
-  //       onNotification: (notification) {
-  //         if (notification is ScrollEndNotification &&
-  //             notification.metrics.extentAfter < 500) {
-  //           _loadReportedNumbers();
-  //         }
-  //         return false;
-  //       },
-  //       child: Padding(
-  //         padding: const EdgeInsets.only(left: 10),
-  //         child: Column(
-  //           crossAxisAlignment: CrossAxisAlignment.end,
-  //           children: [
-  //             Align(
-  //               alignment: Alignment.centerLeft,
-  //               child: Text(
-  //                 'Signalements récents',
-  //                 style: TextStyle(
-  //                   fontWeight: FontWeight.w400,
-  //                 ),
-  //               ),
-  //             ),
-  //             SizedBox(height: 8),
-  //             _reportedNumbers.length == 0
-  //                 ? SizedBox.shrink()
-  //                 : Padding(
-  //                     padding: const EdgeInsets.only(right: 8),
-  //                     child: TextButton(
-  //                       onPressed: () => _deleteAllReportedNumbers(),
-  //                       child: Text(
-  //                         'Delete All',
-  //                         textAlign: TextAlign.end,
-  //                         style: TextStyle(fontSize: 12, color: Colors.red),
-  //                       ),
-  //                     ),
-  //                   ),
-  //             Expanded(
-  //               child: ListView.builder(
-  //                 shrinkWrap: true,
-  //                 physics: NeverScrollableScrollPhysics(),
-  //                 itemCount: _reportedNumbers.length + (hasMore ? 1 : 0),
-  //                 itemBuilder: (context, index) {
-  //                   if (index >= _reportedNumbers.length) {
-  //                     return Center(
-  //                       child: hasMore
-  //                           ? const CircularProgressIndicator()
-  //                           : const Text('Fin des résultats'),
-  //                     );
-  //                   }
-  //
-  //                   final reportedNumber = _reportedNumbers[index];
-  //
-  //                   final nbSignalements = signalementProvider
-  //                       .nombreSignalements(reportedNumber['numero']);
-  //                   print(nbSignalements);
-  //                   return Material(
-  //                     child: Padding(
-  //                       padding: const EdgeInsets.only(bottom: 16),
-  //                       child: ListTile(
-  //                         shape: RoundedRectangleBorder(
-  //                           borderRadius: BorderRadius.circular(16),
-  //                         ),
-  //                         tileColor: Colors.deepPurple.shade50,
-  //                         dense: true,
-  //                         leading: FutureBuilder<int>(
-  //                           future: signalementProvider
-  //                               .nombreSignalements(reportedNumber['numero']),
-  //                           builder: (context, snapshot) {
-  //                             if (snapshot.connectionState ==
-  //                                 ConnectionState.waiting) {
-  //                               return CircleAvatar(
-  //                                   child: Padding(
-  //                                 padding: const EdgeInsets.all(12.0),
-  //                                 child: const CircularProgressIndicator(),
-  //                               ));
-  //                             }
-  //                             return CircleAvatar(
-  //                               backgroundColor:
-  //                                   Theme.of(context).colorScheme.primary,
-  //                               child: Text(
-  //                                   snapshot.hasData
-  //                                       ? snapshot.data.toString()
-  //                                       : '0',
-  //                                   style: TextStyle(
-  //                                     color: Theme.of(context)
-  //                                         .colorScheme
-  //                                         .onPrimary,
-  //                                   )),
-  //                             );
-  //                           },
-  //                         ),
-  //                         title: Text('0${reportedNumber['numero']}'),
-  //                         subtitle: Text(
-  //                           reportedNumber['date'] != null
-  //                               ? DateFormat('dd/MM/yyyy HH:mm').format(
-  //                                   DateTime.parse(reportedNumber['date']!)
-  //                                       .toLocal())
-  //                               : 'Date inconnue',
-  //                           style: TextStyle(fontSize: 12),
-  //                         ),
-  //                         trailing: IconButton(
-  //                           icon: const Icon(
-  //                             Icons.delete,
-  //                             size: 23,
-  //                             color: Colors.red,
-  //                           ),
-  //                           onPressed: () =>
-  //                               _deleteReportedNumber(reportedNumber['numero']),
-  //                         ),
-  //                       ),
-  //                     ),
-  //                   );
-  //                 },
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+
 
   void _setupAuthListener() {
     FirebaseAuth.instance.authStateChanges().listen((User? user) {

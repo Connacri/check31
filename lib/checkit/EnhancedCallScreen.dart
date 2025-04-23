@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as fi;
 import 'package:flutter/material.dart';
 import 'package:call_log/call_log.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../checkit/providerF.dart';
 import 'package:provider/provider.dart';
@@ -173,7 +174,8 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
 
   @override
   Widget build(BuildContext context) {
-
+    final signalementProvider =
+    Provider.of<SignalementProviderSupabase>(context);
     if (!_permissionGranted) {
       return Scaffold(body: Center(child: _buildPermissionDenied()));
     }
@@ -214,7 +216,7 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
                 }
 
 
-                return _buildCallItem(_calls[index]);
+                return _buildCallItem(_calls[index],signalementProvider );
               },
             ),
     );
@@ -222,7 +224,7 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
 
   }
 
-  Widget _buildCallItem(CallLogEntry entry) {
+  Widget _buildCallItem(CallLogEntry entry,signalementProvider) {
     final number = entry.number ?? 'Inconnu';
     //WidgetsBinding.instance.addPostFrameCallback((_) => _checkNumber(number));
     final normalizedNumber =
@@ -236,75 +238,151 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
 
       title: Text('${entry.name ?? 'Inconnu'}'),
 
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                number,
-                style: TextStyle(fontSize: 18, color : _reportedNumbers.contains(normalizedNumber)
-                    ? Colors.red : null ),
-              ),
-              SizedBox(
-                width: 5,
-              ),
-              buildCallTypeIcon(_getCallType(entry.callType)),
+      subtitle: GestureDetector(
+        onLongPress: () {
+          Clipboard.setData(ClipboardData(text: '$number'));
+          // Optionnel : afficher une confirmation
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('$number Copié dans le presse-papiers')),
+          );
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  number,
+                  style: TextStyle(fontSize: 18, color : _reportedNumbers.contains(normalizedNumber)
+                      ? Colors.red : null ),
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+                buildCallTypeIcon(_getCallType(entry.callType)),
 
-            ],
-          ),
-          Text('Type: ${_getCallType(entry.callType)}'),
-          Text('Date: ${_formatDate(entry.timestamp)}'),
-        ],
+              ],
+            ),
+            Text('Type: ${_getCallType(entry.callType)}'),
+            Text('Date: ${_formatDate(entry.timestamp)}'),
+          ],
+        ),
       ),
       trailing: _loadingStates[normalizedNumber] ?? false
           ? const CircularProgressIndicator(strokeWidth: 2)
           :
-    // Badge.count(
-    //         count:  _signalementCount,
-    //           textColor: Colors.white,
-    //         backgroundColor: Colors.red,
-            //child:
-        IconButton(
-                icon: Icon(
-                  _reportedNumbers.contains(normalizedNumber)
-                      ? Icons.block
-                      : Icons.report,
-                  color: _reportedNumbers.contains(normalizedNumber)
-                      ? Colors.red
-                      : Colors.grey,
-                ),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Confirmation du Signal'),
-                      content: Text(
-                        _reportedNumbers.contains(normalizedNumber)
-                            ? 'Ce numéro a déjà été signalé.'
-                            : 'Voulez-vous vraiment signaler ce numéro ?',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          // Ferme la boîte
-                          child: const Text('Annuler'),
-                        ),
-                        _reportedNumbers.contains(normalizedNumber)
-                            ? SizedBox.shrink()
-                            : TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(); // Ferme la boîte
-                                  _reportNumber(normalizedNumber!);
-                                },
-                                child: const Text('Confirmer'),
-                              ),
-                      ],
-                    ),
-                  );
-                },
+      IconButton(
+        icon: signalementProvider.nombreSignalements(normalizedNumber) == 0
+            ? Icon(
+          Icons.report,
+          color: Colors.grey,
+        )
+            : FutureBuilder<int>(
+          future: Future.value(signalementProvider.nombreSignalements(normalizedNumber)),
+          builder: (context, snapshot) {
+            // Gestion du chargement
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Icon(
+                _reportedNumbers.contains(normalizedNumber)
+                    ? Icons.block
+                    : Icons.report,
+                color: _reportedNumbers.contains(normalizedNumber)
+                    ? Colors.red
+                    : Colors.grey,
+              );
+            }
+
+            final count = snapshot.data ?? 0;
+            if (count == 0) {
+              return Icon(
+                Icons.report,
+                color: Colors.grey,
+              );
+            }
+
+            return Badge.count(
+              count: count,
+              child: Icon(
+                _reportedNumbers.contains(normalizedNumber)
+                    ? Icons.block
+                    : Icons.report,
+                color: _reportedNumbers.contains(normalizedNumber)
+                    ? Colors.red
+                    : Colors.grey,
               ),
-        //  ),
+            );
+          },
+        ),
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Confirmation du Signal'),
+              content: Text(
+                _reportedNumbers.contains(normalizedNumber)
+                    ? 'Ce numéro a déjà été signalé.'
+                    : 'Voulez-vous vraiment signaler ce numéro ?',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  // Ferme la boîte
+                  child: const Text('Annuler'),
+                ),
+                _reportedNumbers.contains(normalizedNumber)
+                    ? SizedBox.shrink()
+                    : TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Ferme la boîte
+                    _reportNumber(normalizedNumber!);
+                  },
+                  child: const Text('Confirmer'),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+        // IconButton(
+        //         icon: Icon(
+        //           _reportedNumbers.contains(normalizedNumber)
+        //               ? Icons.block
+        //               : Icons.report,
+        //           color: _reportedNumbers.contains(normalizedNumber)
+        //               ? Colors.red
+        //               : Colors.grey,
+        //         ),
+        //         onPressed: () {
+        //           showDialog(
+        //             context: context,
+        //             builder: (context) => AlertDialog(
+        //               title: const Text('Confirmation du Signal'),
+        //               content: Text(
+        //                 _reportedNumbers.contains(normalizedNumber)
+        //                     ? 'Ce numéro a déjà été signalé.'
+        //                     : 'Voulez-vous vraiment signaler ce numéro ?',
+        //               ),
+        //               actions: [
+        //                 TextButton(
+        //                   onPressed: () => Navigator.of(context).pop(),
+        //                   // Ferme la boîte
+        //                   child: const Text('Annuler'),
+        //                 ),
+        //                 _reportedNumbers.contains(normalizedNumber)
+        //                     ? SizedBox.shrink()
+        //                     : TextButton(
+        //                         onPressed: () {
+        //                           Navigator.of(context).pop(); // Ferme la boîte
+        //                           _reportNumber(normalizedNumber!);
+        //                         },
+        //                         child: const Text('Confirmer'),
+        //                       ),
+        //               ],
+        //             ),
+        //           );
+        //         },
+        //       ),
+
     );
   }
 
