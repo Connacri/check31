@@ -26,13 +26,15 @@ class SignalementProvider with ChangeNotifier {
   void chargerSignalements() {
     _db.onValue.listen((event) {
       final Map<dynamic, dynamic>? data = event.snapshot.value as Map?;
-      _signalementsParNumero =
-          (data ?? {}).map<String, List<Signalement>>((key, value) {
-        final signalements = (value as Map? ?? {})
-            .values
-            .whereType<Map<dynamic, dynamic>>()
-            .map(Signalement.fromJson)
-            .toList();
+      _signalementsParNumero = (data ?? {}).map<String, List<Signalement>>((
+        key,
+        value,
+      ) {
+        final signalements =
+            (value as Map? ?? {}).values
+                .whereType<Map<dynamic, dynamic>>()
+                .map(Signalement.fromJson)
+                .toList();
         return MapEntry(key.toString(), signalements);
       });
       notifyListeners();
@@ -72,5 +74,55 @@ class ThemeProvider with ChangeNotifier {
   void toggleTheme() {
     _isDarkTheme = !_isDarkTheme;
     notifyListeners(); // Notifie les auditeurs que l'état a changé
+  }
+}
+
+class UsersProvider extends ChangeNotifier {
+  final List<Map<String, dynamic>> _users = [];
+  bool _isLoading = false;
+  bool _hasMore = true;
+  int _page = 0;
+  final int _limit = 20;
+
+  List<Map<String, dynamic>> get users => _users;
+
+  bool get isLoading => _isLoading;
+
+  bool get hasMore => _hasMore;
+
+  Future<void> loadUsers() async {
+    if (_isLoading || !_hasMore) return;
+    _isLoading = true;
+    notifyListeners();
+
+    final response = await Supabase.instance.client
+        .from('users')
+        .select()
+        .order('created_at', ascending: false)
+        .range(_page * _limit, (_page + 1) * _limit - 1);
+
+    if (response.isEmpty) {
+      _hasMore = false;
+    } else {
+      _users.addAll(List<Map<String, dynamic>>.from(response));
+      _page++;
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> deleteUser(String id) async {
+    await Supabase.instance.client.from('users').delete().eq('id', id);
+    _users.removeWhere((user) => user['id'] == id);
+    notifyListeners();
+  }
+
+  void reset() {
+    _users.clear();
+    _page = 0;
+    _hasMore = true;
+    _isLoading = false;
+    notifyListeners();
   }
 }

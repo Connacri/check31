@@ -32,14 +32,11 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
   bool _permissionGranted = false;
   Timer? _searchDebounce;
 
-
-
   @override
   void initState() {
     super.initState();
     _user = fi.FirebaseAuth.instance.currentUser;
     _initialize();
-
   }
 
   Future<void> _initialize() async {
@@ -92,9 +89,10 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
 
       setState(() {
         if (filtered.length > _pageSize) {
-          _calls = loadMore
-              ? [..._calls, ...filtered.sublist(0, _pageSize)]
-              : filtered.sublist(0, _pageSize);
+          _calls =
+              loadMore
+                  ? [..._calls, ...filtered.sublist(0, _pageSize)]
+                  : filtered.sublist(0, _pageSize);
           _hasMore = true;
         } else {
           _calls = loadMore ? [..._calls, ...filtered] : filtered;
@@ -117,9 +115,10 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
   }
 
   Future<void> _reportNumber(String normalizedNumber) async {
-    final number =
-        Provider.of<SignalementProviderSupabase>(context, listen: false)
-            .normalizeAndValidateAlgerianPhone(normalizedNumber);
+    final number = Provider.of<SignalementProviderSupabase>(
+      context,
+      listen: false,
+    ).normalizeAndValidateAlgerianPhone(normalizedNumber);
     print(number);
     if (number!.isEmpty || _reportedNumbers.contains(number)) return;
 
@@ -149,11 +148,10 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
     }
   }
 
-
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -174,8 +172,9 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final signalementProvider =
-    Provider.of<SignalementProviderSupabase>(context);
+    final signalementProvider = Provider.of<SignalementProviderSupabase>(
+      context,
+    );
     if (!_permissionGranted) {
       return Scaffold(body: Center(child: _buildPermissionDenied()));
     }
@@ -193,49 +192,46 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
           ),
           onChanged: (value) {
             _searchDebounce?.cancel();
-            _searchDebounce =
-                Timer(const Duration(milliseconds: 500), _loadCallLog);
+            _searchDebounce = Timer(
+              const Duration(milliseconds: 500),
+              _loadCallLog,
+            );
           },
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadCallLog,
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadCallLog),
         ],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: _calls.length + (_hasMore ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index >= _calls.length) {
-                  return _hasMore
-                      ? _buildLoadMoreButton()
-                      : const SizedBox.shrink();
-                }
+      body:
+          _loading
+              ? const Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                itemCount: _calls.length + (_hasMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index >= _calls.length) {
+                    return _hasMore
+                        ? _buildLoadMoreButton()
+                        : const SizedBox.shrink();
+                  }
 
-
-                return _buildCallItem(_calls[index],signalementProvider );
-              },
-            ),
+                  return _buildCallItem(_calls[index], signalementProvider);
+                },
+              ),
     );
-
-
   }
 
-  Widget _buildCallItem(CallLogEntry entry,signalementProvider) {
+  Widget _buildCallItem(CallLogEntry entry, signalementProvider) {
     final number = entry.number ?? 'Inconnu';
     //WidgetsBinding.instance.addPostFrameCallback((_) => _checkNumber(number));
-    final normalizedNumber =
-        Provider.of<SignalementProviderSupabase>(context, listen: false)
-            .normalizeAndValidateAlgerianPhone(number);
-
+    final normalizedNumber = Provider.of<SignalementProviderSupabase>(
+      context,
+      listen: false,
+    ).normalizeAndValidateAlgerianPhone(number);
 
     return ListTile(
       leading: const Icon(Icons.phone),
-      //  leading: buildCallTypeIcon(_getCallType(entry.callType)),
 
+      //  leading: buildCallTypeIcon(_getCallType(entry.callType)),
       title: Text('${entry.name ?? 'Inconnu'}'),
 
       subtitle: GestureDetector(
@@ -253,14 +249,16 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
               children: [
                 Text(
                   number,
-                  style: TextStyle(fontSize: 18, color : _reportedNumbers.contains(normalizedNumber)
-                      ? Colors.red : null ),
+                  style: TextStyle(
+                    fontSize: 18,
+                    color:
+                        _reportedNumbers.contains(normalizedNumber)
+                            ? Colors.red
+                            : null,
+                  ),
                 ),
-                SizedBox(
-                  width: 5,
-                ),
+                SizedBox(width: 5),
                 buildCallTypeIcon(_getCallType(entry.callType)),
-
               ],
             ),
             Text('Type: ${_getCallType(entry.callType)}'),
@@ -268,125 +266,89 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
           ],
         ),
       ),
-      trailing: _loadingStates[normalizedNumber] ?? false
-          ? const CircularProgressIndicator(strokeWidth: 2)
-          :
-      IconButton(
-        icon: signalementProvider.nombreSignalements(normalizedNumber) == 0
-            ? Icon(
-          Icons.report,
-          color: Colors.grey,
-        )
-            : FutureBuilder<int>(
-          future: Future.value(signalementProvider.nombreSignalements(normalizedNumber)),
-          builder: (context, snapshot) {
-            // Gestion du chargement
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Icon(
-                _reportedNumbers.contains(normalizedNumber)
-                    ? Icons.block
-                    : Icons.report,
-                color: _reportedNumbers.contains(normalizedNumber)
-                    ? Colors.red
-                    : Colors.grey,
-              );
-            }
+      trailing:
+          _loadingStates[normalizedNumber] ?? false
+              ? const CircularProgressIndicator(strokeWidth: 2)
+              : IconButton(
+                icon:
+                    signalementProvider.nombreSignalements(normalizedNumber) ==
+                            0
+                        ? Icon(Icons.report, color: Colors.grey)
+                        : FutureBuilder<int>(
+                          future: Future.value(
+                            signalementProvider.nombreSignalements(
+                              normalizedNumber,
+                            ),
+                          ),
+                          builder: (context, snapshot) {
+                            // Gestion du chargement
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Icon(
+                                _reportedNumbers.contains(normalizedNumber)
+                                    ? Icons.block
+                                    : Icons.report,
+                                color:
+                                    _reportedNumbers.contains(normalizedNumber)
+                                        ? Colors.red
+                                        : Colors.grey,
+                              );
+                            }
 
-            final count = snapshot.data ?? 0;
-            if (count == 0) {
-              return Icon(
-                Icons.report,
-                color: Colors.grey,
-              );
-            }
+                            final count = snapshot.data ?? 0;
+                            if (count == 0) {
+                              return Icon(Icons.report, color: Colors.grey);
+                            }
 
-            return Badge.count(
-              count: count,
-              child: Icon(
-                _reportedNumbers.contains(normalizedNumber)
-                    ? Icons.block
-                    : Icons.report,
-                color: _reportedNumbers.contains(normalizedNumber)
-                    ? Colors.red
-                    : Colors.grey,
+                            return Badge.count(
+                              count: count,
+                              child: Icon(
+                                _reportedNumbers.contains(normalizedNumber)
+                                    ? Icons.block
+                                    : Icons.report,
+                                color:
+                                    _reportedNumbers.contains(normalizedNumber)
+                                        ? Colors.red
+                                        : Colors.grey,
+                              ),
+                            );
+                          },
+                        ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder:
+                        (context) => AlertDialog(
+                          title: const Text('Confirmation du Signal'),
+                          content: Text(
+                            _reportedNumbers.contains(normalizedNumber)
+                                ? 'Ce numéro a déjà été signalé.'
+                                : 'Voulez-vous vraiment signaler ce numéro ?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              // Ferme la boîte
+                              child: const Text('Annuler'),
+                            ),
+                            _reportedNumbers.contains(normalizedNumber)
+                                ? SizedBox.shrink()
+                                : TextButton(
+                                  onPressed: () {
+                                    Navigator.of(
+                                      context,
+                                    ).pop(); // Ferme la boîte
+                                    _reportNumber(normalizedNumber!);
+                                  },
+                                  child: const Text('Confirmer'),
+                                ),
+                          ],
+                        ),
+                  );
+                },
               ),
-            );
-          },
-        ),
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Confirmation du Signal'),
-              content: Text(
-                _reportedNumbers.contains(normalizedNumber)
-                    ? 'Ce numéro a déjà été signalé.'
-                    : 'Voulez-vous vraiment signaler ce numéro ?',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  // Ferme la boîte
-                  child: const Text('Annuler'),
-                ),
-                _reportedNumbers.contains(normalizedNumber)
-                    ? SizedBox.shrink()
-                    : TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Ferme la boîte
-                    _reportNumber(normalizedNumber!);
-                  },
-                  child: const Text('Confirmer'),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-        // IconButton(
-        //         icon: Icon(
-        //           _reportedNumbers.contains(normalizedNumber)
-        //               ? Icons.block
-        //               : Icons.report,
-        //           color: _reportedNumbers.contains(normalizedNumber)
-        //               ? Colors.red
-        //               : Colors.grey,
-        //         ),
-        //         onPressed: () {
-        //           showDialog(
-        //             context: context,
-        //             builder: (context) => AlertDialog(
-        //               title: const Text('Confirmation du Signal'),
-        //               content: Text(
-        //                 _reportedNumbers.contains(normalizedNumber)
-        //                     ? 'Ce numéro a déjà été signalé.'
-        //                     : 'Voulez-vous vraiment signaler ce numéro ?',
-        //               ),
-        //               actions: [
-        //                 TextButton(
-        //                   onPressed: () => Navigator.of(context).pop(),
-        //                   // Ferme la boîte
-        //                   child: const Text('Annuler'),
-        //                 ),
-        //                 _reportedNumbers.contains(normalizedNumber)
-        //                     ? SizedBox.shrink()
-        //                     : TextButton(
-        //                         onPressed: () {
-        //                           Navigator.of(context).pop(); // Ferme la boîte
-        //                           _reportNumber(normalizedNumber!);
-        //                         },
-        //                         child: const Text('Confirmer'),
-        //                       ),
-        //               ],
-        //             ),
-        //           );
-        //         },
-        //       ),
-
     );
   }
-
-
 
   Widget _buildPermissionDenied() {
     return Center(
@@ -445,8 +407,8 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
   }
 
   String _formatDate(int? timestamp) {
-    return DateFormat('dd/MM/yyyy HH:mm').format(
-      DateTime.fromMillisecondsSinceEpoch(timestamp ?? 0),
-    );
+    return DateFormat(
+      'dd/MM/yyyy HH:mm',
+    ).format(DateTime.fromMillisecondsSinceEpoch(timestamp ?? 0));
   }
 }
