@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'Models.dart';
@@ -93,7 +94,7 @@ class UsersProvider extends ChangeNotifier {
   Future<void> loadUsers() async {
     if (_isLoading || !_hasMore) return;
     _isLoading = true;
-    notifyListeners();
+    // Removed initial notifyListeners()
 
     final response = await Supabase.instance.client
         .from('users')
@@ -109,7 +110,7 @@ class UsersProvider extends ChangeNotifier {
     }
 
     _isLoading = false;
-    notifyListeners();
+    notifyListeners(); // Keep this notifyListeners()
   }
 
   Future<void> deleteUser(String id) async {
@@ -124,5 +125,96 @@ class UsersProvider extends ChangeNotifier {
     _hasMore = true;
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<int> getSignalementsCount(String userId) async {
+    try {
+      // Option 1: Using a custom RPC function if you've defined one on your Supabase project
+      // Requires you to create a function on your Supabase backend first:
+      // CREATE FUNCTION count_signalements(user_id TEXT) RETURNS INT AS $$
+      //   SELECT COUNT(*) FROM signalements WHERE "signalePar" = user_id;
+      // $$ LANGUAGE SQL;
+
+      // final response = await Supabase.instance.client
+      //     .rpc('count_signalements', params: {'user_id': userId});
+      // return response as int;
+
+      // Option 2: Simple counting by fetching all results
+      print('********************************');
+      print(userId);
+
+      final response = await Supabase.instance.client
+          .from('signalements')
+          .select('id')
+          .eq('user', userId);
+
+      return (response as List).length;
+    } catch (e) {
+      print('Error getting signalements count: $e');
+      return 0;
+    }
+  }
+}
+
+// class LocalizationModel with ChangeNotifier {
+//   Locale _locale = Locale('en');
+//
+//   Locale get locale => _locale;
+//
+//   void changeLocale(String languageCode) {
+//     _locale = Locale(languageCode);
+//     notifyListeners();
+//   }
+// }
+class LocalizationModel with ChangeNotifier {
+  Locale _locale = Locale('fr'); // Valeur par défaut
+
+  Locale get locale => _locale;
+
+  // Initialise la locale avec celle du système ou celle sauvegardée
+  Future<void> initLocale() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      // Vérifier si une langue est déjà sauvegardée
+      String? savedLanguage = prefs.getString('language_code');
+
+      if (savedLanguage != null) {
+        // Utiliser la langue sauvegardée
+        _locale = Locale(savedLanguage);
+      } else {
+        // Utiliser la langue du système
+        final String deviceLocale =
+            WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+
+        // Vérifier si la langue du système est supportée
+        if (['en', 'fr', 'ar', 'es'].contains(deviceLocale)) {
+          _locale = Locale(deviceLocale);
+        } else {
+          // Langue par défaut si celle du système n'est pas supportée
+          _locale = Locale('fr');
+        }
+      }
+
+      notifyListeners();
+    } catch (e) {
+      print("Erreur lors de l'initialisation de la locale: $e");
+      // En cas d'erreur, on garde la locale par défaut
+    }
+  }
+
+  // Changer la langue et la sauvegarder
+  Future<void> changeLocale(String languageCode) async {
+    try {
+      _locale = Locale(languageCode);
+
+      // Sauvegarder la langue dans SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('language_code', languageCode);
+
+      notifyListeners();
+    } catch (e) {
+      print("Erreur lors du changement de locale: $e");
+    }
   }
 }

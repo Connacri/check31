@@ -7,8 +7,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/date_symbol_data_local.dart'; // Importez cette ligne
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as su;
 import 'package:timeago/timeago.dart' as timeago;
@@ -16,22 +19,29 @@ import 'dart:io';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import 'checkit/MyApp.dart';
+import 'checkit/provider.dart';
+import 'checkit/providerF.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
   // Initialisation de Flutter
   //WidgetsFlutterBinding.ensureInitialized();
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
   //FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  //await FlutterLocalization.instance.ensureInitialized();
+  // Initialiser la langue avant de lancer l'application
+  final localizationModel = LocalizationModel();
+  await localizationModel.initLocale();
   MobileAds.instance.initialize();
-   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   // Initialisation de Supabase (si async)
   await initializeSupabase();
 
   //await Firebase.initializeApp(name: projectId, demoProjectId: projectId);
   // Initialisation de Firebase
   await Firebase.initializeApp(
-   // options: DefaultFirebaseOptions.currentPlatform,
+    // options: DefaultFirebaseOptions.currentPlatform,
   );
 
   // // Configuration de Firestore (cache local activé)
@@ -40,7 +50,9 @@ Future<void> main() async {
   // );
 
   initializeDateFormatting(
-      'fr_FR', null); // Initialisez la localisation française
+    'fr_FR',
+    null,
+  ); // Initialisez la localisation française
   if (Platform.isAndroid || Platform.isIOS) {
     MobileAds.instance.initialize();
   } else {
@@ -51,11 +63,9 @@ Future<void> main() async {
   FlutterNativeSplash.remove();
   timeago.setLocaleMessages('fr', timeago.FrMessages());
   timeago.setLocaleMessages('fr_short', timeago.FrShortMessages());
-  runApp(
-    MyApp(
-    ),
-  );
+  runApp(MyApp9());
 }
+
 Future<void> initializeSupabase() async {
   const supabaseUrl = 'https://zjbnzghyhdhlivpokstz.supabase.co';
   const supabaseKey =
@@ -76,9 +86,7 @@ Future<void> initializeSupabase() async {
       realtimeClientOptions: const su.RealtimeClientOptions(
         logLevel: su.RealtimeLogLevel.info,
       ),
-      storageOptions: const su.StorageClientOptions(
-        retryAttempts: 10,
-      ),
+      storageOptions: const su.StorageClientOptions(retryAttempts: 10),
     );
     if (su.Supabase.instance == null) {
       print('Supabase initialization failed.');
@@ -102,16 +110,15 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
-
 class MyApp extends StatefulWidget {
   MyApp({
     super.key,
     /*required this.objectBox*/
   });
 
-//  final ObjectBox objectBox;
-//   static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-//   static FirebaseInAppMessaging fiam = FirebaseInAppMessaging.instance;
+  //  final ObjectBox objectBox;
+  //   static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  //   static FirebaseInAppMessaging fiam = FirebaseInAppMessaging.instance;
 
   static const String _title = 'DZ Wallet';
 
@@ -156,32 +163,28 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        scaffoldMessengerKey: globalScaffoldMessengerKey,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-          fontFamily: 'OSWALD',
-          textTheme: TextTheme(
-            bodyLarge: TextStyle(color: Colors.black87),
-          ),
-        ),
-        locale: const Locale('fr', 'CA'),
+      scaffoldMessengerKey: globalScaffoldMessengerKey,
 
-        //scaffoldMessengerKey: Utils.messengerKey,
-        navigatorKey: navigatorKey,
-        debugShowCheckedModeBanner: false,
-        title: 'Ramzi',
-        darkTheme: ThemeData(
-          brightness: Brightness.dark,
-          primaryColor: Colors.blueGrey,
-          textTheme: TextTheme(
-            bodyLarge: TextStyle(color: Colors.white),
-          ),
-        ),
-        home:
-        //testhome()
-      MyApp9()
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+        fontFamily: 'OSWALD',
+        textTheme: TextTheme(bodyLarge: TextStyle(color: Colors.black87)),
+      ),
+      locale: const Locale('fr', 'CA'),
 
+      //scaffoldMessengerKey: Utils.messengerKey,
+      navigatorKey: navigatorKey,
+      debugShowCheckedModeBanner: false,
+      title: 'Ramzi',
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        primaryColor: Colors.blueGrey,
+        textTheme: TextTheme(bodyLarge: TextStyle(color: Colors.white)),
+      ),
+      home:
+          //testhome()
+          MyApp9(),
     );
   }
 
@@ -191,15 +194,20 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class testhome extends StatelessWidget {
-  const testhome({super.key});
+class MyApp9 extends StatelessWidget {
+  const MyApp9({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(//appBar: AppBar(),
-    body: Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: const Center(child: FittedBox(child: Text('Home de ramzi', style: TextStyle(fontSize: 40, fontWeight: FontWeight.w500),)),),
-    ),);
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SignalementProvider()),
+        ChangeNotifierProvider(create: (_) => SignalementProviderSupabase()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => UsersProvider()),
+        ChangeNotifierProvider(create: (context) => LocalizationModel()),
+      ],
+      child: MyApp99(),
+    );
   }
 }

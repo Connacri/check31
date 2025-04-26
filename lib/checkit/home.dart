@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../AppLocalizations.dart';
 import '../checkit/provider.dart';
 import 'package:provider/provider.dart';
 
@@ -25,7 +26,11 @@ class _SignalHomePage_FirebaseState extends State<SignalHomePage_Firebase> {
     final provider = Provider.of<SignalementProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Numéros signalés')),
+      appBar: AppBar(
+        title: Text(
+          '${AppLocalizations.of(context).translate('reportedNumbers')}',
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
@@ -33,7 +38,10 @@ class _SignalHomePage_FirebaseState extends State<SignalHomePage_Firebase> {
           children: [
             TextField(
               controller: numeroController,
-              decoration: InputDecoration(labelText: 'Numéro'),
+              decoration: InputDecoration(
+                labelText:
+                    '${AppLocalizations.of(context).translate('number')}',
+              ),
             ),
             TextField(
               controller: utilisateurController,
@@ -41,17 +49,25 @@ class _SignalHomePage_FirebaseState extends State<SignalHomePage_Firebase> {
             ),
             TextField(
               controller: motifController,
-              decoration: InputDecoration(labelText: 'Motif'),
+              decoration: InputDecoration(
+                labelText:
+                    '${AppLocalizations.of(context).translate('reason')}',
+              ),
             ),
             TextField(
               controller: graviteController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: 'Gravité (1-5)'),
+              decoration: InputDecoration(
+                labelText:
+                    '${AppLocalizations.of(context).translate('severity')}',
+              ),
             ),
             TextField(
               controller: descriptionController,
-              decoration:
-                  InputDecoration(labelText: 'Description (optionnelle)'),
+              decoration: InputDecoration(
+                labelText:
+                    '${AppLocalizations.of(context).translate('descriptionOptional')}',
+              ),
             ),
             SizedBox(height: 12),
             Row(
@@ -63,9 +79,10 @@ class _SignalHomePage_FirebaseState extends State<SignalHomePage_Firebase> {
                       signalePar: utilisateurController.text.trim(),
                       motif: motifController.text.trim(),
                       gravite: int.tryParse(graviteController.text.trim()) ?? 1,
-                      description: descriptionController.text.trim().isEmpty
-                          ? null
-                          : descriptionController.text.trim(),
+                      description:
+                          descriptionController.text.trim().isEmpty
+                              ? null
+                              : descriptionController.text.trim(),
                       date: DateTime.now(),
                       user: '',
                     );
@@ -76,7 +93,9 @@ class _SignalHomePage_FirebaseState extends State<SignalHomePage_Firebase> {
                     graviteController.clear();
                     descriptionController.clear();
                   },
-                  child: Text("Ajouter"),
+                  child: Text(
+                    '${AppLocalizations.of(context).translate('add')}',
+                  ),
                 ),
                 SizedBox(width: 10),
                 ElevatedButton(
@@ -85,29 +104,37 @@ class _SignalHomePage_FirebaseState extends State<SignalHomePage_Firebase> {
                       numeroRecherche = numeroController.text.trim();
                     });
                   },
-                  child: Text("Rechercher"),
+                  child: Text(
+                    '${AppLocalizations.of(context).translate('search')}',
+                  ),
                 ),
               ],
             ),
             SizedBox(height: 16),
             if (numeroRecherche != null) ...[
               Text(
-                "Signalements pour $numeroRecherche : ${provider.nombreSignalements(numeroRecherche!)}",
+                "${AppLocalizations.of(context).translate('reportsFor')} $numeroRecherche : ${provider.nombreSignalements(numeroRecherche!)}",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 8),
               Expanded(
                 child: ListView(
-                  children: provider.getSignalements(numeroRecherche!).map((s) {
-                    return ListTile(
-                      title: Text("${s.signalePar} - Gravité: ${s.gravite}"),
-                      subtitle: Text(s.description ?? 'Aucune description'),
-                      trailing: Text(
-                        '${s.date.day}/${s.date.month}/${s.date.year}',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    );
-                  }).toList(),
+                  children:
+                      provider.getSignalements(numeroRecherche!).map((s) {
+                        return ListTile(
+                          title: Text(
+                            "${s.signalePar} - ${AppLocalizations.of(context).translate('severityOnly')} : ${s.gravite}",
+                          ),
+                          subtitle: Text(
+                            s.description ??
+                                '${AppLocalizations.of(context).translate('noDescription')} ',
+                          ),
+                          trailing: Text(
+                            '${s.date.day}/${s.date.month}/${s.date.year}',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        );
+                      }).toList(),
                 ),
               ),
             ],

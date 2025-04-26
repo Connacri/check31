@@ -3,6 +3,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:check31/checkit/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../AppLocalizations.dart';
 import 'users.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -25,6 +26,9 @@ import 'AuthProvider.dart';
 import 'EnhancedCallScreen.dart';
 import 'Models.dart';
 import 'admob/main.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 
 class HomePage3 extends StatefulWidget {
   @override
@@ -118,6 +122,9 @@ class _HomePage3State extends State<HomePage3> {
   void initState() {
     super.initState();
     _user = FirebaseAuth.instance.currentUser;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadUsersAsync();
+    });
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       setState(() {
         _user = user;
@@ -152,9 +159,13 @@ class _HomePage3State extends State<HomePage3> {
     _initializeFCM();
     numeroController.addListener(_handleTextChange);
     _loadBannerAd();
-
     _loadInterstitialAd1();
     _loadInterstitialAd2();
+  }
+
+  Future<void> _loadUsersAsync() async {
+    final provider = Provider.of<UsersProvider>(context, listen: false);
+    await provider.loadUsers();
   }
 
   Future<void> _loadBannerAd() async {
@@ -327,7 +338,7 @@ class _HomePage3State extends State<HomePage3> {
           (context) => AlertDialog(
             title: Center(
               child: Text(
-                'Erreur',
+                AppLocalizations.of(context).translate('error'),
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
                   color: Theme.of(context).primaryColor,
@@ -350,64 +361,38 @@ class _HomePage3State extends State<HomePage3> {
     );
   }
 
-  String selectedMotif = 'Fraude ou tentative de fraude';
+  String selectedMotif = 'motifFraud'; // Utiliser la clé ici
 
   final List<String> motifs = [
-    'Fraude ou tentative de fraude',
-    'Comportement abusif ou agressif',
-    'Retours excessifs ou abusifs',
-    'Non-paiement ou paiements en retard',
-    'Violation des conditions d\'utilisation',
-    'Vol à l\'étalage',
-    'Fausse réclamation ou plainte',
-    'Utilisation inappropriée des promotions',
-    'Comportement suspect',
-    'Non-respect des règles de sécurité',
-    'Refus de réception de la commande',
-    'Comportement suspect',
-    'Retard dans le paiement',
-    'Utilisation de moyens de paiement frauduleux',
-    'Mauvaise foi lors de la réclamation',
-    'Non-respect des conditions de livraison',
-    'Abus de retour ou d\'échange',
-    'Demande de remboursement injustifiée',
-    'Utilisation de documents falsifiés',
-    'Non-remise de la marchandise à la bonne personne',
-    'Tentative de fraude sur les produits',
-    'Modifications fréquentes des informations de commande',
-    'Comportement menaçant',
-    'Ignorance des consignes de sécurité',
+    'motifFraud',
+    'motifAbusiveBehavior',
+    'motifExcessiveReturns',
+    'motifNonPayment',
+    'motifViolationTerms',
+    'motifShoplifting',
+    'motifFalseClaim',
+    'motifMisusePromotions',
+    'motifSuspiciousBehavior',
+    'motifNonComplianceSafetyRules',
+    'motifRefusalReceipt',
+    'motifLatePayment',
+    'motifFraudulentPaymentMethods',
+    'motifBadFaithClaim',
+    'motifNonComplianceDelivery',
+    'motifReturnAbuse',
+    'motifUnjustifiedRefundRequest',
+    'motifUseFalsifiedDocuments',
+    'motifNonDeliveryToCorrectPerson',
+    'motifFraudAttemptProducts',
+    'motifFrequentOrderChanges',
+    'motifThreateningBehavior',
+    'motifSafetyInstructionsIgnorance',
   ];
-
-  void _handleSignOut() async {
-    // _showReadyInterstitialAd(onAdClosed: () async {
-    //   await _authService.signOut();
-    //   setState(() {
-    //     _user = null;
-    //   });
-    // });
-    // Vérifiez si une publicité interstitielle est prête
-    if (_isInterstitialAdReady) {
-      _showReadyInterstitialAd(
-        onAdClosed: () async {
-          // Redirection après la fermeture de la publicité
-          await _authService.signOut();
-          setState(() {
-            _user = null;
-          });
-        },
-      );
-    } else {
-      await _authService.signOut();
-      setState(() {
-        _user = null;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<SignalementProviderSupabase>(context);
+    String imageUrl = 'https://picsum.photos/200/300';
     return Scaffold(
       resizeToAvoidBottomInset: true, // important !
       appBar: AppBar(
@@ -449,8 +434,8 @@ class _HomePage3State extends State<HomePage3> {
                 ),
         title: Text(
           _user != null
-              ? '${_user!.displayName ?? "Utilisateur"}'
-              : 'Unknow User',
+              ? '${_user!.displayName ?? AppLocalizations.of(context).translate('user')}'
+              : AppLocalizations.of(context).translate('unknownUser'),
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
@@ -460,6 +445,7 @@ class _HomePage3State extends State<HomePage3> {
           ),
         ),
         actions: [
+          LanguageDropdownFlag(),
           _user == null
               ? SizedBox.shrink()
               : IconButton(
@@ -486,18 +472,18 @@ class _HomePage3State extends State<HomePage3> {
           //         onPressed: () => Navigator.of(context).push(
           //             MaterialPageRoute(builder: (ctx) => LottieListPage())),
           //         icon: Icon(Icons.animation)),
-          _user == null || _user!.email != 'forslog@gmail.com'
-              ? SizedBox.shrink()
-              : IconButton.outlined(
-                onPressed:
-                    () => Navigator.of(
-                      context,
-                    ).push(MaterialPageRoute(builder: (ctx) => UsersPage())),
-                icon: Icon(
-                  Icons.supervised_user_circle_sharp,
-                  color: Colors.blue,
-                ),
-              ),
+          // _user == null || _user!.email != 'forslog@gmail.com'
+          //     ? SizedBox.shrink()
+          //     : IconButton.outlined(
+          //       onPressed:
+          //           () => Navigator.of(
+          //             context,
+          //           ).push(MaterialPageRoute(builder: (ctx) => UsersPage())),
+          //       icon: Icon(
+          //         Icons.supervised_user_circle_sharp,
+          //         color: Colors.blue,
+          //       ),
+          //     ),
           // if (_user != null)
           //   IconButton(
           //     icon: Icon(Icons.logout),
@@ -556,65 +542,50 @@ class _HomePage3State extends State<HomePage3> {
                   //     ],
                   //   ),
                   // ),
-                  Consumer<UsersProvider>(
-                    builder:
-                        (context, provider, _) => Card(
-                          color: Colors.deepPurple,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text(
-                              '${provider.users.length} utilisateurs',
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.white,
+                  _user != null && _user!.email == 'forslog@gmail.com'
+                      ? Consumer<UsersProvider>(
+                        builder:
+                            (context, provider, _) => Card(
+                              color: Colors.deepPurple,
+                              child: ListTile(
+                                onTap:
+                                    () => Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (ctx) => UsersPage(),
+                                      ),
+                                    ),
+                                leading: CircleAvatar(
+                                  child: Text(
+                                    '${provider.users.length}',
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                ),
+                                title: Text(
+                                  'Utilisateurs',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                  ),
+                      )
+                      : SizedBox.shrink(),
                   SizedBox(height: 10),
-                  FittedBox(
-                    child: Text(
-                      'شكيت'.toUpperCase(),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.black45,
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'ArbFONTS',
-                      ),
-                    ),
-                  ),
-                  FittedBox(
-                    child: Text(
-                      'Check-it'.toUpperCase(),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.black45,
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+
+                  // Center(
+                  //   child: Text(
+                  //     AppLocalizations.of(context).translate('hello'),
+                  //     style: TextStyle(fontSize: 24),
+                  //   ),
+                  // ),
+                  SizedBox(height: 10),
                   AnimatedTextKit(
                     animatedTexts: animatedWords,
                     repeatForever: true,
                     pause: Duration(milliseconds: 1000),
                     isRepeatingAnimation: true,
                   ),
-
-                  // FittedBox(
-                  //   child: Text(
-                  //     'شكيت'.toUpperCase(),
-                  //     textAlign: TextAlign.center,
-                  //     style: const TextStyle(
-                  //       color: Colors.black45,
-                  //       fontSize: 25,
-                  //       fontWeight: FontWeight.bold,
-                  //       fontFamily: 'ArbFONTS',
-                  //     ),
-                  //   ),
-                  // ),
                   SizedBox(height: 10),
                   SizedBox(
                     height: 180,
@@ -623,6 +594,8 @@ class _HomePage3State extends State<HomePage3> {
                       onTap: () {
                         showAboutDialog(
                           context: context,
+                          useRootNavigator: false,
+                          routeSettings: RouteSettings(),
                           applicationIcon: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             // Coins arrondis
@@ -635,12 +608,16 @@ class _HomePage3State extends State<HomePage3> {
                             ),
                           ),
                           applicationName: 'Check-it',
-                          applicationVersion: '1.0.3',
+                          applicationVersion: '1.0.6',
                           applicationLegalese: '© 2025 Inturk Oran',
+
                           children: [
                             const SizedBox(height: 16),
-                            const Text(
-                              'CHECK-IT est une application qui vous permet de signaler et vérifier les numéros frauduleux à l\'origine de retours de produits et de pertes financières pour les commerçants..',
+                            Text(
+                              AppLocalizations.of(
+                                context,
+                              ).translate('checkItDescription'),
+
                               textAlign: TextAlign.justify,
                             ),
                           ],
@@ -649,12 +626,11 @@ class _HomePage3State extends State<HomePage3> {
                       child: Lottie.asset('assets/lotties/1 (128).json'),
                     ),
                   ),
-
                   SizedBox(height: 10),
                   AnimatedTextField(
                     // fieldKey: _numeroFieldKey,
                     controller: numeroController,
-                    labelText: 'Numéro',
+                    labelText: AppLocalizations.of(context).translate('number'),
                     keyboardType: TextInputType.phone,
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'[0-9+ ]')),
@@ -680,9 +656,13 @@ class _HomePage3State extends State<HomePage3> {
                               child: DropdownButtonFormField<String>(
                                 isExpanded: true,
                                 decoration: InputDecoration(
-                                  labelText: 'Motif',
+                                  labelText: AppLocalizations.of(
+                                    context,
+                                  ).translate('reason'),
                                   alignLabelWithHint: true,
-                                  hintText: 'Entrez un texte long ici...',
+                                  hintText: AppLocalizations.of(
+                                    context,
+                                  ).translate('longtext'),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8.0),
                                     borderSide: BorderSide.none,
@@ -702,12 +682,18 @@ class _HomePage3State extends State<HomePage3> {
                                     ) {
                                       return DropdownMenuItem<String>(
                                         value: value,
-                                        child: Text(value),
+                                        child: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          ).translate(value),
+                                        ),
                                       );
                                     }).toList(),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return 'Veuillez sélectionner un motif';
+                                    return AppLocalizations.of(
+                                      context,
+                                    ).translate('valide');
                                   }
                                   return null;
                                 },
@@ -741,8 +727,12 @@ class _HomePage3State extends State<HomePage3> {
                               padding: const EdgeInsets.fromLTRB(8, 8, 0, 0),
                               child: AnimatedLongTextField(
                                 controller: motifController,
-                                labelText: 'Motif',
+                                labelText: AppLocalizations.of(
+                                  context,
+                                ).translate('reason'),
                                 validator: (value) {
+                                  return null;
+
                                   // if (value == null || value.isEmpty) {
                                   //   return 'Veuillez entrer un motif';
                                   // }
@@ -803,7 +793,9 @@ class _HomePage3State extends State<HomePage3> {
 
                                   if (numero == null) {
                                     _showErrorDialog(
-                                      "Le numéro de téléphone est invalide.",
+                                      AppLocalizations.of(
+                                        context,
+                                      ).translate('invalideNumber'),
                                     );
                                     return;
                                   }
@@ -819,7 +811,7 @@ class _HomePage3State extends State<HomePage3> {
 
                                   if (alreadyReported) {
                                     _showErrorDialog(
-                                      "Vous avez déjà signalé\n0$numero.",
+                                      '${AppLocalizations.of(context).translate('dejaSignaler')}\n0$numero.',
                                     );
                                     return;
                                   }
@@ -852,7 +844,7 @@ class _HomePage3State extends State<HomePage3> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        'Le numéro 0$numero a bien été signalé',
+                                        '${AppLocalizations.of(context).translate('leNum')}\n0$numero  ${AppLocalizations.of(context).translate('abien')}.',
                                       ),
                                       backgroundColor: Colors.green,
                                       duration: Duration(seconds: 3),
@@ -867,7 +859,11 @@ class _HomePage3State extends State<HomePage3> {
                                 );
                               }
                             },
-                            label: Text("Signaler"),
+                            label: Text(
+                              AppLocalizations.of(
+                                context,
+                              ).translate('signaler'),
+                            ),
                             icon: Icon(
                               Icons.add,
                               color: Theme.of(context).colorScheme.onPrimary,
@@ -901,7 +897,9 @@ class _HomePage3State extends State<HomePage3> {
 
                               if (numero == null) {
                                 _showErrorDialog(
-                                  "Le numéro de téléphone est invalide.",
+                                  AppLocalizations.of(
+                                    context,
+                                  ).translate('invalideNumber'),
                                 );
                                 return;
                               }
@@ -919,7 +917,11 @@ class _HomePage3State extends State<HomePage3> {
                               });
                             }
                           },
-                          label: Text("Rechercher"),
+                          label: Text(
+                            AppLocalizations.of(
+                              context,
+                            ).translate('rechercher'),
+                          ),
                           icon: Icon(Icons.search),
                         ),
                       ),
@@ -936,11 +938,12 @@ class _HomePage3State extends State<HomePage3> {
                         if (await canLaunchUrl(url)) {
                           await launchUrl(url);
                         } else {
-                          throw 'Impossible d\'ouvrir $url';
+                          throw '${AppLocalizations.of(context).translate('impossibledouvrir')} $url';
                         }
                       },
                       child: Text(
-                        'Cliquez ici pour visiter le site web',
+                        '${AppLocalizations.of(context).translate('website')}',
+
                         style: TextStyle(
                           color: Colors.blue,
                           decoration: TextDecoration.underline,
@@ -948,7 +951,6 @@ class _HomePage3State extends State<HomePage3> {
                       ),
                     ),
                   ),
-
                   if (_bannerAd != null)
                     Expanded(
                       child: Container(
@@ -971,7 +973,6 @@ class _HomePage3State extends State<HomePage3> {
                         ),
                       ),
                   SizedBox(height: 100),
-
                   SizedBox(height: 10),
                 ],
               ),
@@ -1106,7 +1107,9 @@ class _googleBtnState extends State<googleBtn> {
     } catch (e) {
       print('Erreur déconnexion: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erreur lors de la déconnexion')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).translate('connexErreur')),
+        ),
       );
     } finally {
       setState(() => isSigningOut = false);
@@ -1119,7 +1122,17 @@ class _googleBtnState extends State<googleBtn> {
       context,
     );
     return Scaffold(
-      appBar: AppBar(title: Text('Check-it Profil')),
+      appBar: AppBar(
+        title:
+            _user == null
+                ? SizedBox.shrink()
+                : AppLocalizations.of(context).locale.languageCode != 'ar'
+                ? Text('${AppLocalizations.of(context).translate('profil')}')
+                : Text(
+                  '${AppLocalizations.of(context).translate('profil')}',
+                  style: const TextStyle(fontFamily: 'ArbFONTS'),
+                ),
+      ),
       body: Center(
         child:
             isLoading
@@ -1143,42 +1156,41 @@ class _googleBtnState extends State<googleBtn> {
               width: 200,
               fit: BoxFit.cover,
             ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
-                child: FittedBox(
-                  child: Text(
-                    'Utilisant Ton Compte Google\npour ce connecter et te permettre\nde signaler des les numéros'
-                        .toUpperCase(),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.black45,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Oswald',
+
+            AppLocalizations.of(context).locale.languageCode != 'ar'
+                ? Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
+
+                    child: Text(
+                      '${AppLocalizations.of(context).translate('usingGoogleToReport')}'
+                          .toUpperCase(),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.black45,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Oswald',
+                      ),
+                    ),
+                  ),
+                )
+                : Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
+                    child: Text(
+                      '${AppLocalizations.of(context).translate('usingGoogleToReport')}'
+                          .toUpperCase(),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.black45,
+                        fontSize: 25,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'ArbFONTS',
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
-                child: FittedBox(
-                  child: Text(
-                    'استخدام حسابك الخاص قوقل\nلتسجيل الدخول حتى تتمكن\nمن الإبلاغ عن الأرقام'
-                        .toUpperCase(),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.black45,
-                      fontSize: 25,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'ArbFONTS',
-                    ),
-                  ),
-                ),
-              ),
-            ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
@@ -1254,7 +1266,8 @@ class _googleBtnState extends State<googleBtn> {
                               ),
                               SizedBox(height: 16),
                               Text(
-                                _user?.displayName ?? 'Utilisateur',
+                                _user?.displayName ??
+                                    '${AppLocalizations.of(context).translate('user')}',
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -1287,15 +1300,17 @@ class _googleBtnState extends State<googleBtn> {
                                   color:
                                       Theme.of(context).colorScheme.onPrimary,
                                 ),
-                                label: Text('Se déconnecter'),
+                                label: Text(
+                                  '${AppLocalizations.of(context).translate('deconex')}',
+                                ),
                               ),
                               const SizedBox(height: 20),
                               TextButton(
                                 onPressed:
                                     () =>
                                         _showDeleteAccountConfirmation(context),
-                                child: const Text(
-                                  'Supprimer définitivement mon compte',
+                                child: Text(
+                                  '${AppLocalizations.of(context).translate('defini')}',
 
                                   style: TextStyle(
                                     fontSize: 13,
@@ -1385,7 +1400,8 @@ class _googleBtnState extends State<googleBtn> {
                     Padding(
                       padding: const EdgeInsets.only(left: 8),
                       child: Text(
-                        'Signalements récents',
+                        '${AppLocalizations.of(context).translate('sRecent')}',
+
                         style: TextStyle(fontWeight: FontWeight.w400),
                       ),
                     ),
@@ -1395,7 +1411,8 @@ class _googleBtnState extends State<googleBtn> {
                         onPressed: () => confirmDeleteAll(context),
                         // onPressed: () => _deleteAllReportedNumbers(),
                         child: Text(
-                          'Delete All',
+                          '${AppLocalizations.of(context).translate('deleteAll')}',
+
                           textAlign: TextAlign.end,
                           style: TextStyle(fontSize: 12, color: Colors.red),
                         ),
@@ -1415,7 +1432,9 @@ class _googleBtnState extends State<googleBtn> {
                       child:
                           hasMore
                               ? const CircularProgressIndicator()
-                              : const Text('Fin des résultats'),
+                              : Text(
+                                '${AppLocalizations.of(context).translate('fin')}',
+                              ),
                     );
                   }
 
@@ -1478,7 +1497,8 @@ class _googleBtnState extends State<googleBtn> {
                                 locale:
                                     'fr', // Optionnel - pour avoir les textes en français
                               )
-                              : 'Date inconnue',
+                              : '${AppLocalizations.of(context).translate('dateInconnu')}',
+
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey[600],
@@ -1534,18 +1554,23 @@ class _googleBtnState extends State<googleBtn> {
       context: context,
       builder:
           (dialogContext) => AlertDialog(
-            title: const Text('Confirmation requise'),
-            content: const Text(
-              'Cette action supprimera votre compte et tous vos signalements de façon irréversible.\n'
-              'Êtes-vous absolument sûr ?',
+            title: Text(
+              '${AppLocalizations.of(context).translate('validateRequise')}',
+            ),
+            content: Text(
+              '${AppLocalizations.of(context).translate('actionDeleting')}',
             ),
             actions: [
               TextButton(
-                child: const Text('Annuler'),
+                child: Text(
+                  '${AppLocalizations.of(context).translate('annuler')}',
+                ),
                 onPressed: () => Navigator.pop(context),
               ),
               TextButton(
-                child: const Text('Confirmer'),
+                child: Text(
+                  '${AppLocalizations.of(context).translate('confirme')}',
+                ),
                 onPressed: () async {
                   Navigator.pop(dialogContext);
 
@@ -1555,7 +1580,11 @@ class _googleBtnState extends State<googleBtn> {
                   if (mounted) {
                     if (success) {
                       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-                        SnackBar(content: Text('Compte supprimé avec succès')),
+                        SnackBar(
+                          content: Text(
+                            '${AppLocalizations.of(context).translate('deleteSucces')}',
+                          ),
+                        ),
                       );
 
                       Navigator.pushAndRemoveUntil(
@@ -1565,7 +1594,11 @@ class _googleBtnState extends State<googleBtn> {
                       );
                     } else {
                       ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-                        SnackBar(content: Text('Échec de la suppression')),
+                        SnackBar(
+                          content: Text(
+                            '${AppLocalizations.of(context).translate('deleteEchec')}',
+                          ),
+                        ),
                       );
                     }
                   }
@@ -1596,8 +1629,10 @@ class _googleBtnState extends State<googleBtn> {
   void confirmDeleteAll(BuildContext context) {
     showConfirmationDialog(
       context: context,
-      title: 'Supprimer tous les signalements',
-      content: 'Cette action supprimera tous les numéros signalés. Continuer ?',
+      title: '${AppLocalizations.of(context).translate('deleteAllReports')}',
+
+      content:
+          '${AppLocalizations.of(context).translate('deleteAllReportsConfirmation')}',
       onConfirm: _deleteAllReportedNumbers,
     );
   }
@@ -1605,8 +1640,9 @@ class _googleBtnState extends State<googleBtn> {
   void confirmDeleteNumero(BuildContext context, String numero) {
     showConfirmationDialog(
       context: context,
-      title: 'Confirmer la suppression',
-      content: 'Voulez-vous vraiment supprimer ce numéro signalé ?',
+      title: '${AppLocalizations.of(context).translate('confirmDeletion')}',
+      content:
+          '${AppLocalizations.of(context).translate('confirmReportDeletion')}',
       onConfirm: () => _deleteReportedNumber(numero),
     );
   }
@@ -1625,12 +1661,14 @@ class _googleBtnState extends State<googleBtn> {
             content: Text(content),
             actions: [
               TextButton(
-                child: const Text('Annuler'),
+                child: Text(
+                  '${AppLocalizations.of(context).translate('annuler')}',
+                ),
                 onPressed: () => Navigator.of(ctx).pop(),
               ),
               ElevatedButton(
-                child: const Text(
-                  'Supprimer',
+                child: Text(
+                  '${AppLocalizations.of(context).translate('delete')}',
                   style: TextStyle(color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -1740,8 +1778,8 @@ void _showSignalementDialog(
               // Texte signalement
               SelectableText(
                 nbSignalements == 0
-                    ? "Utilisateur\n0$numeroRecherche\n"
-                    : "Ce numéro de téléphone 0$numeroRecherche a été signalé",
+                    ? '${AppLocalizations.of(context).translate('user')}\n0$numeroRecherche'
+                    : '${AppLocalizations.of(context).translate('ceNum')}\n0$numeroRecherche ${AppLocalizations.of(context).translate('hasBeenRepo')}',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
               ),
@@ -1761,7 +1799,10 @@ void _showSignalementDialog(
                     minRadius: 30,
                     backgroundColor: getColorForSignalements(nbSignalements),
                   ),
-              nbSignalements == 0 ? SizedBox.shrink() : Text("Fois"),
+              SizedBox(height: 10),
+              nbSignalements == 0
+                  ? SizedBox.shrink()
+                  : Text("${AppLocalizations.of(context).translate('fois')}"),
               nbSignalements == 0 ? SizedBox.shrink() : SizedBox(height: 10),
               DangerBarWithAnimation(degree: nbSignalements),
               SizedBox(height: 10),
@@ -1771,7 +1812,7 @@ void _showSignalementDialog(
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text("Fermer"),
+            child: Text("${AppLocalizations.of(context).translate('fermer')}"),
           ),
         ],
       );
@@ -1822,7 +1863,7 @@ class _DangerBarWithAnimationState extends State<DangerBarWithAnimation>
 
   // Retourne le texte associé au degré de gravité
 
-  String getTextForSignalements(int signalements) {
+  String getTextForSignalementss(int signalements) {
     if (signalements == 0) {
       return 'Ce numéro n\'a jamais été signalé.';
     } else if (signalements == 1) {
@@ -1835,6 +1876,22 @@ class _DangerBarWithAnimationState extends State<DangerBarWithAnimation>
       return 'Ce numéro présente un risque très élevé.';
     } else {
       return 'État de signalement inconnu.';
+    }
+  }
+
+  String getTextForSignalementsContext(BuildContext context, int signalements) {
+    if (signalements == 0) {
+      return AppLocalizations.of(context).translate('numeroJamaisSignale');
+    } else if (signalements == 1) {
+      return AppLocalizations.of(context).translate('numeroRisqueModere');
+    } else if (signalements == 2) {
+      return AppLocalizations.of(context).translate('numeroRisqueMoyen');
+    } else if (signalements == 3 || signalements == 4) {
+      return AppLocalizations.of(context).translate('numeroRisqueEleve');
+    } else if (signalements >= 5) {
+      return AppLocalizations.of(context).translate('numeroRisqueTresEleve');
+    } else {
+      return AppLocalizations.of(context).translate('etatSignalementInconnu');
     }
   }
 
@@ -1866,7 +1923,7 @@ class _DangerBarWithAnimationState extends State<DangerBarWithAnimation>
           child: Lottie.asset(getLottieFilePathForDegree(widget.degree)),
         ),
         SelectableText(
-          getTextForSignalements(widget.degree),
+          getTextForSignalementsContext(context, widget.degree),
           textAlign: TextAlign.center,
           style: TextStyle(
             fontWeight: FontWeight.bold,

@@ -301,6 +301,7 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
                             }
 
                             return Badge.count(
+                              backgroundColor: Colors.red,
                               count: count,
                               child: Icon(
                                 _reportedNumbers.contains(normalizedNumber)

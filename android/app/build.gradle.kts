@@ -35,8 +35,8 @@ android {
         multiDexEnabled = true
         minSdk = 23//flutter.minSdkVersion
         targetSdk = 35//flutter.targetSdkVersion
-        versionCode = 4//flutter.versionCode
-        versionName = "1.0.3"//flutter.versionName
+        versionCode = 6//flutter.versionCode
+        versionName = "1.0.5"//flutter.versionName
     }
 
     signingConfigs {
@@ -66,7 +66,7 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 
     // Import the Firebase BoM
-    implementation (platform("com.google.firebase:firebase-bom:33.8.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.8.0"))
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.core:core:1.12.0")
 //    implementation 'com.google.android.gms:play-services-ads:23.6.0'
@@ -79,12 +79,12 @@ dependencies {
 //    implementation 'androidx.appcompat:appcompat:1.7.0'
 //    implementation 'com.google.android.material:material:1.12.0'
 //    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
-    coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:2.1.5")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     // Dépendances Firebase
-    implementation ("com.google.firebase:firebase-analytics") // Analytics (optionnel)
-    implementation ("com.google.firebase:firebase-firestore") // Firestore (si utilisé)
-    implementation ("com.google.firebase:firebase-auth") // Authentication (si utilisé)
-    implementation ("com.google.firebase:firebase-storage") // Storage (si u
+    implementation("com.google.firebase:firebase-analytics") // Analytics (optionnel)
+    implementation("com.google.firebase:firebase-firestore") // Firestore (si utilisé)
+    implementation("com.google.firebase:firebase-auth") // Authentication (si utilisé)
+    implementation("com.google.firebase:firebase-storage") // Storage (si u
 //    implementation("com.google.android.gms:play-services-ads:23.1.0") {
 //        exclude group: 'org.bouncycastle', module: 'bcprov-jdk18on'
 //    }

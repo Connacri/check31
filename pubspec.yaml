@@ -3,7 +3,7 @@ description: "A new ChechIT project."
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.3+4
+version: 1.0.5+6
 
 environment:
   sdk: ^3.7.0
@@ -44,6 +44,8 @@ dependencies:
   rename: ^3.0.2
   animated_text_kit: ^4.2.3
   pretty_animated_text: ^2.0.0
+  flutter_localization: ^0.3.2
+
 
 dev_dependencies:
   flutter_test:
@@ -110,10 +112,19 @@ flutter:
         - asset: assets/fonts/ArbFONTS-Al-Jazeera-Arabic-Light.ttf
         - asset: assets/fonts/ArbFONTS-Al-Jazeera-Arabic-Regular.ttf
         - asset: assets/fonts/NizarBBCKurdish-Bold.ttf
+    - family: BBC
+      fonts:
+        - asset: assets/fonts/NizarBBCKurdish-Bold.ttf
+
+    - family: KHALED
+      fonts:
+        - asset: assets/fonts/ArbFONTS-Al-Jazeera-Arabic-Bold.ttf
+
 
   assets:
     - assets/
     - assets/lotties/
+    - assets/images/banner.png
     - assets/images/icon.png
     - assets/firebase_logo.png
     - assets/google_logo.png
@@ -124,5 +135,7 @@ flutter:
     - assets/logos/mobilis.png
     - assets/logos/ooredoo.png
     - assets/splash_logo.png
+    - assets/flags/
+    - assets/i18n/
 
 
