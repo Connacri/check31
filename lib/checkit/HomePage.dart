@@ -5,6 +5,7 @@ import 'package:check31/checkit/provider.dart';
 import 'package:check31/checkit/widgets/motifs.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../AppLocalizations.dart';
 import 'users.dart';
@@ -112,11 +113,7 @@ class _HomePage3State extends State<HomePage3> {
   InterstitialAd? _interstitialAd;
   bool _isInterstitialAdReady = false;
 
-  // RewardedAd? _rewardedAd;
-  // int _numRewardedLoadAttempts = 0;
-  //
-  // RewardedInterstitialAd? _rewardedInterstitialAd;
-  // int _numRewardedInterstitialLoadAttempts = 0;
+  bool _isInAlgeria = false;
 
   @override
   void initState() {
@@ -161,6 +158,7 @@ class _HomePage3State extends State<HomePage3> {
     _loadBannerAd();
     _loadInterstitialAd1();
     _loadInterstitialAd2();
+    _checkLocationPermission();
   }
 
   Future<void> _loadUsersAsync() async {
@@ -361,6 +359,57 @@ class _HomePage3State extends State<HomePage3> {
     );
   }
 
+  Future<void> _checkLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+        'Location permissions are permanently denied, we cannot request permissions.',
+      );
+    }
+
+    _checkLocation();
+  }
+
+  Future<void> _checkLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      // Coordonnées approximatives de l'Algérie
+      double minLat = 18.95; // Latitude minimale
+      double maxLat = 37.09; // Latitude maximale
+      double minLng = -8.67; // Longitude minimale
+      double maxLng = 11.99; // Longitude maximale
+
+      if (position.latitude >= minLat &&
+          position.latitude <= maxLat &&
+          position.longitude >= minLng &&
+          position.longitude <= maxLng) {
+        setState(() {
+          _isInAlgeria = true;
+        });
+      }
+    } catch (e) {
+      print('Erreur lors de la récupération de la localisation: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<SignalementProviderSupabase>(context);
@@ -398,13 +447,13 @@ class _HomePage3State extends State<HomePage3> {
                   ),
                 )
                 : Padding(
-                  padding: const EdgeInsets.only(left: 15),
+                  padding: const EdgeInsets.only(left: 10),
                   child: IconButton(
                     onPressed:
                         () => Navigator.of(context).push(
                           MaterialPageRoute(builder: (ctx) => googleBtn()),
                         ),
-                    icon: Icon(Icons.account_circle, size: 40),
+                    icon: Icon(Icons.account_circle, size: 35),
                   ),
                 ),
         titleSpacing: 0,
@@ -712,10 +761,13 @@ class _HomePage3State extends State<HomePage3> {
                             onPressed: () async {
                               if (_user != null) {
                                 if (_formKey.currentState!.validate()) {
-                                  final numero = provider
-                                      .normalizeAndValidateAlgerianPhone(
-                                        numeroController.text.trim(),
-                                      );
+                                  final numero =
+                                      _isInAlgeria
+                                          ? provider
+                                              .normalizeAndValidateAlgerianPhone(
+                                                numeroController.text.trim(),
+                                              )
+                                          : numeroController.text.trim();
 
                                   if (numero == null) {
                                     _showErrorDialog(

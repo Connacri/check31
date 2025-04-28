@@ -1,882 +1,903 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CHECK-IT - Protection contre les numéros frauduleux</title>
-  <style>
-    :root {
-        --purple-primary: #6a0dad;
-        --purple-secondary: #9932CC;
-        --purple-light: #E6E6FA;
-        --dark: #222;
-        --light: #fff;
-        --red: #ff0000;
-    }
-
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Roboto', sans-serif;
-    }
-
-    body {
-        background-color: #f8f9fa;
-        color: var(--dark);
-        line-height: 1.6;
-    }
-
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
-
-    header {
-        background-color: var(--purple-primary);
-        padding: 20px 0;
-        position: fixed;
-        width: 100%;
-        top: 0;
-        z-index: 1000;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .logo {
-        display: flex;
-        align-items: center;
-    }
-
-    .logo img {
-        height: 40px;
-        margin-right: 10px;
-    }
-
-    .logo h1 {
-        color: var(--light);
-        font-size: 24px;
-        font-weight: 700;
-    }
-
-    .logo h1 span {
-        color: var(--red);
-    }
-
-    .nav-links {
-        display: flex;
-        list-style: none;
-    }
-
-    .nav-links li {
-        margin-left: 30px;
-    }
-
-    .nav-links a {
-        color: var(--light);
-        text-decoration: none;
-        font-weight: 500;
-        transition: 0.3s;
-    }
-
-    .nav-links a:hover {
-        color: var(--purple-light);
-    }
-
-    /* Mobile menu styles */
-    .hamburger {
-        display: none;
-        cursor: pointer;
-        background: none;
-        border: none;
-        color: var(--light);
-        font-size: 24px;
-    }
-
-    .mobile-nav {
-        display: none;
-        position: absolute;
-        top: 80px;
-        left: 0;
-        width: 100%;
-        background-color: var(--purple-primary);
-        padding: 20px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .mobile-nav.active {
-        display: block;
-    }
-
-    .mobile-nav ul {
-        list-style: none;
-    }
-
-    .mobile-nav ul li {
-        margin-bottom: 15px;
-        text-align: center;
-    }
-
-    .mobile-nav ul li a {
-        color: var(--light);
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 18px;
-        transition: 0.3s;
-    }
-
-    .mobile-nav ul li a:hover {
-        color: var(--purple-light);
-    }
-
-    .hero {
-        min-height: 100vh;
-        background: linear-gradient(135deg, var(--purple-primary), var(--purple-secondary));
-        color: var(--light);
-        display: flex;
-        align-items: center;
-        padding-top: 80px;
-        padding-bottom: 40px;
-    }
-
-    .hero-content {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .hero-text {
-        flex: 1;
-        padding-right: 50px;
-    }
-
-    .hero-text h2 {
-        font-size: 48px;
-        margin-bottom: 20px;
-        line-height: 1.2;
-    }
-
-    .hero-text p {
-        font-size: 18px;
-        margin-bottom: 30px;
-    }
-
-    .btn {
-        display: inline-block;
-        background-color: var(--light);
-        color: var(--purple-primary);
-        padding: 12px 30px;
-        border-radius: 30px;
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 16px;
-        transition: 0.3s;
-        margin-right: 15px;
-        margin-bottom: 15px;
-    }
-
-    .btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-outline {
-        background-color: transparent;
-        border: 2px solid var(--light);
-        color: var(--light);
-    }
-
-    .btn-outline:hover {
-        background-color: var(--light);
-        color: var(--purple-primary);
-    }
-
-    .hero-image {
-        flex: 1;
-        text-align: center;
-    }
-
-    .hero-image img {
-        max-width: 80%;
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    }
-
-    .app-showcase {
-        padding: 80px 0;
-        background-color: var(--light);
-        text-align: center;
-    }
-
-    .app-showcase img {
-        max-width: 300px;
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        margin: 0 auto;
-    }
-
-    .features {
-        padding: 80px 0;
-        background-color: var(--light);
-    }
-
-    .section-title {
-        text-align: center;
-        margin-bottom: 60px;
-    }
-
-    .section-title h3 {
-        font-size: 36px;
-        color: var(--purple-primary);
-        margin-bottom: 15px;
-    }
-
-    .section-title p {
-        font-size: 18px;
-        color: var(--dark);
-        max-width: 700px;
-        margin: 0 auto;
-    }
-
-    .features-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 30px;
-    }
-
-    .feature-card {
-        background-color: var(--light);
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        transition: 0.3s;
-        text-align: center;
-    }
-
-    .feature-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-    }
-
-    .feature-icon {
-        background-color: var(--purple-light);
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 20px;
-    }
-
-    .feature-icon i {
-        color: var(--purple-primary);
-        font-size: 30px;
-    }
-
-    .feature-card h4 {
-        font-size: 22px;
-        margin-bottom: 15px;
-        color: var(--purple-primary);
-    }
-
-    .feature-card p {
-        font-size: 16px;
-        color: var(--dark);
-    }
-
-    .how-it-works {
-        padding: 80px 0;
-        background-color: var(--purple-light);
-    }
-
-    .steps {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 50px;
-    }
-
-    .step {
-        flex: 1;
-        text-align: center;
-        padding: 0 20px;
-        position: relative;
-    }
-
-    .step:not(:last-child):after {
-        content: "";
-        position: absolute;
-        top: 35px;
-        right: -30px;
-        width: 60px;
-        height: 2px;
-        background-color: var(--purple-primary);
-    }
-
-    .step-number {
-        background-color: var(--purple-primary);
-        color: var(--light);
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        font-weight: 700;
-        margin: 0 auto 20px;
-    }
-
-    .step h4 {
-        font-size: 20px;
-        margin-bottom: 15px;
-        color: var(--purple-primary);
-    }
-
-    .step p {
-        font-size: 16px;
-        color: var(--dark);
-    }
-
-    .download {
-        padding: 80px 0;
-        background-color: var(--light);
-    }
-
-    .download-container {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .download-text {
-        flex: 1;
-        padding-right: 50px;
-    }
-
-    .download-text h3 {
-        font-size: 36px;
-        color: var(--purple-primary);
-        margin-bottom: 20px;
-    }
-
-    .download-text p {
-        font-size: 18px;
-        margin-bottom: 30px;
-    }
-
-    .download-options {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .download-btn {
-        display: flex;
-        align-items: center;
-        background-color: var(--purple-primary);
-        color: var(--light);
-        padding: 12px 25px;
-        border-radius: 8px;
-        text-decoration: none;
-        margin-bottom: 20px;
-        transition: 0.3s;
-    }
-
-    .download-btn:hover {
-        background-color: var(--purple-secondary);
-        transform: translateY(-3px);
-    }
-
-    .download-btn i {
-        font-size: 24px;
-        margin-right: 10px;
-    }
-
-    .download-btn span {
-        font-weight: 500;
-    }
-
-    .qr-code {
-        flex: 1;
-        text-align: center;
-    }
-
-    .qr-code img {
-        max-width: 200px;
-        border: 10px solid var(--light);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .qr-code p {
-        margin-top: 15px;
-        font-size: 16px;
-        color: var(--dark);
-    }
-
-    footer {
-        background-color: var(--dark);
-        color: var(--light);
-        padding: 40px 0;
-    }
-
-    .footer-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-    }
-
-    .footer-logo {
-        flex: 1;
-    }
-
-    .footer-logo img {
-        height: 40px;
-        margin-bottom: 15px;
-    }
-
-    .footer-logo p {
-        font-size: 14px;
-        margin-bottom: 20px;
-        max-width: 300px;
-    }
-
-    .footer-links {
-        flex: 1;
-        display: flex;
-        justify-content: space-around;
-    }
-
-    .footer-column h4 {
-        font-size: 18px;
-        margin-bottom: 20px;
-        color: var(--light);
-    }
-
-    .footer-column ul {
-        list-style: none;
-    }
-
-    .footer-column ul li {
-        margin-bottom: 10px;
-    }
-
-    .footer-column ul li a {
-        color: #ccc;
-        text-decoration: none;
-        transition: 0.3s;
-    }
-
-    .footer-column ul li a:hover {
-        color: var(--purple-light);
-    }
-
-    .social-links {
-        display: flex;
-        margin-top: 20px;
-    }
-
-    .social-links a {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        margin-right: 10px;
-        transition: 0.3s;
-    }
-
-    .social-links a:hover {
-        background-color: var(--purple-primary);
-    }
-
-    .social-links i {
-        color: var(--light);
-        font-size: 18px;
-    }
-
-    .footer-bottom {
-        text-align: center;
-        padding-top: 40px;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        margin-top: 40px;
-        font-size: 14px;
-    }
-
-    @media (max-width: 991px) {
-        .hero-content {
-            flex-direction: column;
-            text-align: center;
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>CHECK-IT - Protection contre les numéros frauduleux</title>
+    <style>
+        :root {
+            --purple-primary: #6a0dad;
+            --purple-secondary: #9932CC;
+            --purple-light: #E6E6FA;
+            --dark: #222;
+            --light: #fff;
+            --red: #ff0000;
         }
 
-        .hero-text {
-            padding-right: 0;
-            margin-bottom: 50px;
-            order: 1; /* Text first */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
         }
 
-        .hero-image {
-            order: 2; /* Image second/below */
-            margin-top: 30px;
+        body {
+            background-color: #f8f9fa;
+            color: var(--dark);
+            line-height: 1.6;
         }
 
-        .features-grid {
-            grid-template-columns: repeat(2, 1fr);
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
 
-        .steps {
-            flex-direction: column;
+        header {
+            background-color: var(--purple-primary);
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .step {
-            margin-bottom: 40px;
-        }
-
-        .step:not(:last-child):after {
-            display: none;
-        }
-
-        .download-container {
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .download-text {
-            padding-right: 0;
-            margin-bottom: 50px;
-        }
-
-        .download-options {
+        nav {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
         }
 
-        .footer-content {
-            flex-direction: column;
+        .logo {
+            display: flex;
+            align-items: center;
         }
 
-        .footer-logo {
-            text-align: center;
-            margin-bottom: 30px;
+        .logo img {
+            height: 40px;
+            margin-right: 10px;
         }
 
-        .footer-logo p {
-            max-width: 100%;
+        .logo h1 {
+            color: var(--light);
+            font-size: 24px;
+            font-weight: 700;
         }
 
-        .footer-links {
-            margin-bottom: 30px;
-        }
-
-        .social-links {
-            justify-content: center;
-        }
-    }
-
-    @media (max-width: 767px) {
-        .features-grid {
-            grid-template-columns: 1fr;
+        .logo h1 span {
+            color: var(--red);
         }
 
         .nav-links {
-            display: none;
+            display: flex;
+            list-style: none;
         }
 
+        .nav-links li {
+            margin-left: 30px;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--purple-light);
+        }
+
+        /* Mobile menu styles */
         .hamburger {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 24px;
+        }
+
+        .mobile-nav {
+            display: none;
+            position: absolute;
+            top: 80px;
+            left: 0;
+            width: 100%;
+            background-color: var(--purple-primary);
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-nav.active {
             display: block;
         }
 
+        .mobile-nav ul {
+            list-style: none;
+        }
+
+        .mobile-nav ul li {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .mobile-nav ul li a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+
+        .mobile-nav ul li a:hover {
+            color: var(--purple-light);
+        }
+
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--purple-primary), var(--purple-secondary));
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            padding-top: 80px;
+            padding-bottom: 40px;
+        }
+
+        .hero-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .hero-text {
+            flex: 1;
+            padding-right: 50px;
+        }
+
         .hero-text h2 {
-            font-size: 36px;
+            font-size: 48px;
+            margin-bottom: 20px;
+            line-height: 1.2;
         }
 
         .hero-text p {
-            font-size: 16px;
+            font-size: 18px;
+            margin-bottom: 30px;
         }
 
         .btn {
-            width: 100%;
+            display: inline-block;
+            background-color: var(--light);
+            color: var(--purple-primary);
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            transition: 0.3s;
+            margin-right: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--light);
+            color: var(--light);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--light);
+            color: var(--purple-primary);
+        }
+
+        .hero-image {
+            flex: 1;
             text-align: center;
-            margin-right: 0;
+        }
+
+        .hero-image img {
+            max-width: 80%;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .app-showcase {
+            padding: 80px 0;
+            background-color: var(--light);
+            text-align: center;
+        }
+
+        .app-showcase img {
+            max-width: 300px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            margin: 0 auto;
+        }
+
+        .features {
+            padding: 80px 0;
+            background-color: var(--light);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h3 {
+            font-size: 36px;
+            color: var(--purple-primary);
+            margin-bottom: 15px;
+        }
+
+        .section-title p {
+            font-size: 18px;
+            color: var(--dark);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .feature-card {
+            background-color: var(--light);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            background-color: var(--purple-light);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .feature-icon i {
+            color: var(--purple-primary);
+            font-size: 30px;
+        }
+
+        .feature-card h4 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: var(--purple-primary);
+        }
+
+        .feature-card p {
+            font-size: 16px;
+            color: var(--dark);
+        }
+
+        .how-it-works {
+            padding: 80px 0;
+            background-color: var(--purple-light);
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .step:not(:last-child):after {
+            content: "";
+            position: absolute;
+            top: 35px;
+            right: -30px;
+            width: 60px;
+            height: 2px;
+            background-color: var(--purple-primary);
+        }
+
+        .step-number {
+            background-color: var(--purple-primary);
+            color: var(--light);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 auto 20px;
+        }
+
+        .step h4 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--purple-primary);
+        }
+
+        .step p {
+            font-size: 16px;
+            color: var(--dark);
+        }
+
+        .download {
+            padding: 80px 0;
+            background-color: var(--light);
+        }
+
+        .download-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .download-text {
+            flex: 1;
+            padding-right: 50px;
+        }
+
+        .download-text h3 {
+            font-size: 36px;
+            color: var(--purple-primary);
+            margin-bottom: 20px;
+        }
+
+        .download-text p {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        .download-options {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .download-btn {
+            display: flex;
+            align-items: center;
+            background-color: var(--purple-primary);
+            color: var(--light);
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .download-btn:hover {
+            background-color: var(--purple-secondary);
+            transform: translateY(-3px);
+        }
+
+        .download-btn i {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .download-btn span {
+            font-weight: 500;
+        }
+
+        .qr-code {
+            flex: 1;
+            text-align: center;
+        }
+
+        .qr-code img {
+            max-width: 200px;
+            border: 10px solid var(--light);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .qr-code p {
+            margin-top: 15px;
+            font-size: 16px;
+            color: var(--dark);
+        }
+
+        footer {
+            background-color: var(--dark);
+            color: var(--light);
+            padding: 40px 0;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .footer-logo {
+            flex: 1;
+        }
+
+        .footer-logo img {
+            height: 40px;
+            margin-bottom: 15px;
+        }
+
+        .footer-logo p {
+            font-size: 14px;
+            margin-bottom: 20px;
+            max-width: 300px;
         }
 
         .footer-links {
-            flex-direction: column;
-            text-align: center;
+            flex: 1;
+            display: flex;
+            justify-content: space-around;
         }
 
-        .footer-column {
-            margin-bottom: 30px;
+        .footer-column h4 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: var(--light);
         }
-    }
-  </style>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul li a {
+            color: #ccc;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .footer-column ul li a:hover {
+            color: var(--purple-light);
+        }
+
+        .social-links {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            margin-right: 10px;
+            transition: 0.3s;
+        }
+
+        .social-links a:hover {
+            background-color: var(--purple-primary);
+        }
+
+        .social-links i {
+            color: var(--light);
+            font-size: 18px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 40px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 991px) {
+            .hero-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero-text {
+                padding-right: 0;
+                margin-bottom: 50px;
+                order: 1; /* Text first */
+            }
+
+            .hero-image {
+                order: 2; /* Image second/below */
+                margin-top: 30px;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .steps {
+                flex-direction: column;
+            }
+
+            .step {
+                margin-bottom: 40px;
+            }
+
+            .step:not(:last-child):after {
+                display: none;
+            }
+
+            .download-container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .download-text {
+                padding-right: 0;
+                margin-bottom: 50px;
+            }
+
+            .download-options {
+                align-items: center;
+            }
+
+            .footer-content {
+                flex-direction: column;
+            }
+
+            .footer-logo {
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            .footer-logo p {
+                max-width: 100%;
+            }
+
+            .footer-links {
+                margin-bottom: 30px;
+            }
+
+            .social-links {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .hero-text h2 {
+                font-size: 36px;
+            }
+
+            .hero-text p {
+                font-size: 16px;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+                margin-right: 0;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-column {
+                margin-bottom: 30px;
+            }
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+          rel="stylesheet">
+    <meta content="0vsagj84N9uL1-vw5WfgM49iIDyjsqFEKGJkm9Pdkeo" name="google-site-verification"/>
 </head>
 <body>
 <!-- Header -->
 <header>
-  <div class="container">
-    <nav>
-      <div class="logo">
+    <div class="container">
+        <nav>
+            <div class="logo">
 
-        <h1>Check<span>.it</span></h1>
-      </div>
-      <ul class="nav-links">
-        <li><a href="#features">Fonctionnalités</a></li>
-        <li><a href="#how-it-works">Comment ça marche</a></li>
-        <li><a href="https://play.google.com/store/apps/details?id=com.check31.dz.check31&pcampaignid=web_share">Télécharger</a></li>
-        <li><a href="mailto:oran.inturk@gmail.com">Contact</a></li>
-      </ul>
-      <button class="hamburger" id="hamburger-btn">
-        <i class="fas fa-bars"></i>
-      </button>
-    </nav>
-  </div>
+                <h1>Check<span>.it</span></h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#features">Fonctionnalités</a></li>
+                <li><a href="#how-it-works">Comment ça marche</a></li>
+                <li>
+                    <a href="https://play.google.com/store/apps/details?id=com.check31.dz.check31&pcampaignid=web_share">Télécharger</a>
+                </li>
+                <li><a href="mailto:oran.inturk@gmail.com">Contact</a></li>
+            </ul>
+            <button class="hamburger" id="hamburger-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </nav>
+    </div>
 </header>
 
 <!-- Mobile Navigation -->
 <div class="mobile-nav" id="mobile-nav">
-  <ul>
-    <li><a href="#features">Fonctionnalités</a></li>
-    <li><a href="#how-it-works">Comment ça marche</a></li>
-    <li><a href="https://play.google.com/store/apps/details?id=com.check31.dz.check31&pcampaignid=web_share">Télécharger</a></li>
-    <li><a href="mailto:oran.inturk@gmail.com">Contact</a></li>
-  </ul>
+    <ul>
+        <li><a href="#features">Fonctionnalités</a></li>
+        <li><a href="#how-it-works">Comment ça marche</a></li>
+        <li>
+            <a href="https://play.google.com/store/apps/details?id=com.check31.dz.check31&pcampaignid=web_share">Télécharger</a>
+        </li>
+        <li><a href="mailto:oran.inturk@gmail.com">Contact</a></li>
+    </ul>
 </div>
 
 <!-- Hero Section -->
 <section class="hero">
-  <div class="container">
-    <div class="hero-content">
-      <div class="hero-text">
-        <h2>Protégez votre commerce contre les fraudes téléphoniques</h2>
-        <p>CHECK-IT est une application qui vous permet de signaler et vérifier les numéros frauduleux à l'origine de retours de produits et de pertes financières pour les commerçants.</p>
-        <!--        <a href="https://play.google.com/store/apps/details?id=com.check31.dz.check31&pcampaignid=web_share" class="download-btn">Télécharger maintenant</a>-->
-        <a href="https://play.google.com/store/apps/details?id=com.check31.dz.check31&pcampaignid=web_share" class="btn">
-          <i class="fab fa-android"></i>
-          <span>Télécharger l'APK</span>
-        </a>
-      </div>
-      <div class="hero-image">
-        <img src="MyImg/1.jpg" alt="CHECK-IT App Screenshot">
-      </div>
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h2>Protégez votre commerce contre les fraudes téléphoniques</h2>
+                <p>CHECK-IT est une application qui vous permet de signaler et vérifier les numéros
+                    frauduleux à l'origine de retours de produits et de pertes financières pour les
+                    commerçants.</p>
+                <!--        <a href="https://play.google.com/store/apps/details?id=com.check31.dz.check31&pcampaignid=web_share" class="download-btn">Télécharger maintenant</a>-->
+                <a class="btn"
+                   href="https://play.google.com/store/apps/details?id=com.check31.dz.check31&pcampaignid=web_share">
+                    <i class="fab fa-android"></i>
+                    <span>Télécharger l'APK</span>
+                </a>
+            </div>
+            <div class="hero-image">
+                <img alt="CHECK-IT App Screenshot" src="MyImg/1.jpg">
+            </div>
+        </div>
     </div>
-  </div>
 </section>
 
 <!-- Features Section - Now positioned after the hero section with app screenshot -->
 <section class="features" id="features">
-  <div class="container">
-    <div class="section-title">
-      <h3>Fonctionnalités principales</h3>
-      <p>Découvrez comment CHECK-IT peut protéger votre entreprise contre les fraudeurs</p>
+    <div class="container">
+        <div class="section-title">
+            <h3>Fonctionnalités principales</h3>
+            <p>Découvrez comment CHECK-IT peut protéger votre entreprise contre les fraudeurs</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h4>Vérification instantanée</h4>
+                <p>Vérifiez rapidement si un numéro de téléphone est signalé comme frauduleux dans
+                    notre base de données</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h4>Signalement facile</h4>
+                <p>Signalez les numéros frauduleux directement depuis votre historique d'appels en
+                    quelques clics</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h4>Base de données partagée</h4>
+                <p>Accédez à une base de données collaborative alimentée par une communauté de
+                    commerçants vigilants</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h4>Historique d'appels</h4>
+                <p>Consultez et analysez votre historique d'appels pour identifier les numéros
+                    suspects</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h4>Alertes en temps réel</h4>
+                <p>Recevez des alertes instantanées lorsqu'un numéro suspect vous appelle</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h4>Protection commerciale</h4>
+                <p>Réduisez vos pertes financières en identifiant les fraudeurs avant qu'ils
+                    n'agissent</p>
+            </div>
+        </div>
     </div>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-search"></i>
-        </div>
-        <h4>Vérification instantanée</h4>
-        <p>Vérifiez rapidement si un numéro de téléphone est signalé comme frauduleux dans notre base de données</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-exclamation-triangle"></i>
-        </div>
-        <h4>Signalement facile</h4>
-        <p>Signalez les numéros frauduleux directement depuis votre historique d'appels en quelques clics</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-database"></i>
-        </div>
-        <h4>Base de données partagée</h4>
-        <p>Accédez à une base de données collaborative alimentée par une communauté de commerçants vigilants</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-history"></i>
-        </div>
-        <h4>Historique d'appels</h4>
-        <p>Consultez et analysez votre historique d'appels pour identifier les numéros suspects</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-bell"></i>
-        </div>
-        <h4>Alertes en temps réel</h4>
-        <p>Recevez des alertes instantanées lorsqu'un numéro suspect vous appelle</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <i class="fas fa-shield-alt"></i>
-        </div>
-        <h4>Protection commerciale</h4>
-        <p>Réduisez vos pertes financières en identifiant les fraudeurs avant qu'ils n'agissent</p>
-      </div>
-    </div>
-  </div>
 </section>
 
 <!-- How It Works Section -->
 <section class="how-it-works" id="how-it-works">
-  <div class="container">
-    <div class="section-title">
-      <h3>Comment ça marche</h3>
-      <p>CHECK-IT est simple à utiliser et vous protège efficacement contre les fraudes</p>
+    <div class="container">
+        <div class="section-title">
+            <h3>Comment ça marche</h3>
+            <p>CHECK-IT est simple à utiliser et vous protège efficacement contre les fraudes</p>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h4>Téléchargez l'application</h4>
+                <p>Installez CHECK-IT sur votre smartphone Android via notre APK sécurisé</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h4>Vérifiez les numéros</h4>
+                <p>Recherchez un numéro ou consultez directement votre historique d'appels</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h4>Signalez les fraudeurs</h4>
+                <p>Contribuez à la communauté en signalant les numéros frauduleux</p>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <h4>Protégez votre entreprise</h4>
+                <p>Évitez les pertes financières grâce à l'identification précoce des fraudeurs</p>
+            </div>
+        </div>
     </div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-number">1</div>
-        <h4>Téléchargez l'application</h4>
-        <p>Installez CHECK-IT sur votre smartphone Android via notre APK sécurisé</p>
-      </div>
-      <div class="step">
-        <div class="step-number">2</div>
-        <h4>Vérifiez les numéros</h4>
-        <p>Recherchez un numéro ou consultez directement votre historique d'appels</p>
-      </div>
-      <div class="step">
-        <div class="step-number">3</div>
-        <h4>Signalez les fraudeurs</h4>
-        <p>Contribuez à la communauté en signalant les numéros frauduleux</p>
-      </div>
-      <div class="step">
-        <div class="step-number">4</div>
-        <h4>Protégez votre entreprise</h4>
-        <p>Évitez les pertes financières grâce à l'identification précoce des fraudeurs</p>
-      </div>
-    </div>
-  </div>
 </section>
 
 <!-- Download Section -->
 <section class="download" id="download">
-  <div class="container">
-    <div class="download-container">
-      <div class="download-text">
-        <h3>Téléchargez CHECK-IT maintenant</h3>
-        <p>Protégez votre commerce contre les fraudeurs et réduisez vos pertes financières dès aujourd'hui. Notre application est disponible gratuitement pour Android.</p>
-        <div class="download-options">
-          <a href="https://play.google.com/store/apps/details?id=com.check31.dz.check31&pcampaignid=web_share" class="download-btn">
-            <i class="fab fa-android"></i>
-            <span>Télécharger l'APK</span>
-          </a>
-          <p>Scanner le QR code pour télécharger directement</p>
+    <div class="container">
+        <div class="download-container">
+            <div class="download-text">
+                <h3>Téléchargez CHECK-IT maintenant</h3>
+                <p>Protégez votre commerce contre les fraudeurs et réduisez vos pertes financières
+                    dès aujourd'hui. Notre application est disponible gratuitement pour Android.</p>
+                <div class="download-options">
+                    <a class="download-btn"
+                       href="https://play.google.com/store/apps/details?id=com.check31.dz.check31&pcampaignid=web_share">
+                        <i class="fab fa-android"></i>
+                        <span>Télécharger l'APK</span>
+                    </a>
+                    <p>Scanner le QR code pour télécharger directement</p>
+                </div>
+
+                <!-- Section de contact -->
+                <div class="contact-info">
+                    <h4>Contactez-nous :</h4>
+                    <br>
+
+                    <p><strong>Téléphone :</strong> <a href="tel:+213696410953">+213 696 410 953</a>
+                    </p>
+                    <p>
+                        <strong>WhatsApp :</strong>
+                        <a href="https://wa.me/213696410953" target="_blank">Envoyer un message</a>
+                        <!--            <strong>Telegram :</strong>-->
+                        <!--            <a href="https://t.me/your_telegram_username" target="_blank">@your_telegram_username</a><br>-->
+                        <!--            <strong>WeChat :</strong>-->
+                        <!--            <span>Votre ID WeChat ou un QR code</span>-->
+                    </p>
+                </div>
+            </div>
+
+            <div class="qr-code">
+                <img alt="QR Code pour télécharger CHECK-IT" src="MyImg/qr playstore.png">
+                <p>Scannez pour télécharger</p>
+            </div>
         </div>
-
-        <!-- Section de contact -->
-        <div class="contact-info">
-          <h4>Contactez-nous :</h4>
-          <br>
-
-          <p><strong>Téléphone :</strong> <a href="tel:+213696410953">+213 696 410 953</a></p>
-          <p>
-            <strong>WhatsApp :</strong>
-            <a href="https://wa.me/213696410953" target="_blank">Envoyer un message</a>
-            <!--            <strong>Telegram :</strong>-->
-            <!--            <a href="https://t.me/your_telegram_username" target="_blank">@your_telegram_username</a><br>-->
-            <!--            <strong>WeChat :</strong>-->
-            <!--            <span>Votre ID WeChat ou un QR code</span>-->
-          </p>
-        </div>
-      </div>
-
-      <div class="qr-code">
-        <img src="MyImg/qr playstore.png" alt="QR Code pour télécharger CHECK-IT">
-        <p>Scannez pour télécharger</p>
-      </div>
     </div>
-  </div>
 </section>
 
 
 <!-- Footer -->
 <footer id="contact">
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-logo">
-        <img src="MyImg/icon.png" alt="CHECK-IT Logo">
-        <p>CHECK-IT - L'application qui protège les commerçants contre les numéros frauduleux et les pertes financières.</p>
-        <div class="social-links">
-          <a href="https://www.facebook.com/tirex.cut/"><i class="fab fa-facebook-f"></i></a>
-          <a href="https://x.com/tirexus1"><i class="fab fa-twitter"></i></a>
-          <a href="https://www.instagram.com/tirexuz1/"><i class="fab fa-instagram"></i></a>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img alt="CHECK-IT Logo" src="MyImg/icon.png">
+                <p>CHECK-IT - L'application qui protège les commerçants contre les numéros
+                    frauduleux et les pertes financières.</p>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/tirex.cut/"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://x.com/tirexus1"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.instagram.com/tirexuz1/"><i
+                            class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Liens rapides</h4>
+                    <ul>
+                        <li><a href="#features">Fonctionnalités</a></li>
+                        <li><a href="#how-it-works">Comment ça marche</a></li>
+                        <li>
+                            <a href="https://play.google.com/store/apps/details?id=com.check31.dz.check31&pcampaignid=web_share">Télécharger</a>
+                        </li>
+                        <li><a href="mailto:oran.inturk@gmail.com">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Centre d'aide</a></li>
+                        <li><a href="mailto:oran.inturk@gmail.com">Signaler un problème</a></li>
+                        <li><a href="#">Confidentialité</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="footer-links">
-        <div class="footer-column">
-          <h4>Liens rapides</h4>
-          <ul>
-            <li><a href="#features">Fonctionnalités</a></li>
-            <li><a href="#how-it-works">Comment ça marche</a></li>
-            <li><a href="https://play.google.com/store/apps/details?id=com.check31.dz.check31&pcampaignid=web_share">Télécharger</a></li>
-            <li><a href="mailto:oran.inturk@gmail.com">Contact</a></li>
-          </ul>
+        <div class="footer-bottom">
+            <p>&copy; 2025 CHECK-IT. Tous droits réservés.</p>
         </div>
-        <div class="footer-column">
-          <h4>Support</h4>
-          <ul>
-            <li><a href="#">FAQ</a></li>
-            <li><a href="#">Centre d'aide</a></li>
-            <li><a href="mailto:oran.inturk@gmail.com">Signaler un problème</a></li>
-            <li><a href="#">Confidentialité</a></li>
-          </ul>
-        </div>
-      </div>
     </div>
-    <div class="footer-bottom">
-      <p>&copy; 2025 CHECK-IT. Tous droits réservés.</p>
-    </div>
-  </div>
 </footer>
 <script>
-  // Mobile menu toggle functionality
-  const hamburgerBtn = document.getElementById('hamburger-btn');
-  const mobileNav = document.getElementById('mobile-nav');
+    // Mobile menu toggle functionality
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const mobileNav = document.getElementById('mobile-nav');
 
-  hamburgerBtn.addEventListener('click', function() {
-      mobileNav.classList.toggle('active');
-  });
+    hamburgerBtn.addEventListener('click', function() {
+        mobileNav.classList.toggle('active');
+    });
 
-  // Close mobile menu when clicking a link
-  const mobileLinks = document.querySelectorAll('.mobile-nav a');
-  mobileLinks.forEach(link => {
-      link.addEventListener('click', function() {
-          mobileNav.classList.remove('active');
-      });
-  });
+    // Close mobile menu when clicking a link
+    const mobileLinks = document.querySelectorAll('.mobile-nav a');
+    mobileLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            mobileNav.classList.remove('active');
+        });
+    });
 </script>
 <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyCfCIHK33HUvpC52S1Vc8DTLVGfXIKDEDE",
-    authDomain: "check31-a2fdf.firebaseapp.com",
-    databaseURL: "https://check31-a2fdf-default-rtdb.firebaseio.com",
-    projectId: "check31-a2fdf",
-    storageBucket: "check31-a2fdf.firebasestorage.app",
-    messagingSenderId: "860380563914",
-    appId: "1:860380563914:web:d83ba0ec8d29f719eba733",
-    measurementId: "G-CYS7VDC6QB"
-  };
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyCfCIHK33HUvpC52S1Vc8DTLVGfXIKDEDE",
+      authDomain: "check31-a2fdf.firebaseapp.com",
+      databaseURL: "https://check31-a2fdf-default-rtdb.firebaseio.com",
+      projectId: "check31-a2fdf",
+      storageBucket: "check31-a2fdf.firebasestorage.app",
+      messagingSenderId: "860380563914",
+      appId: "1:860380563914:web:d83ba0ec8d29f719eba733",
+      measurementId: "G-CYS7VDC6QB"
+    };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
 </script>
 </body>
 </html>
