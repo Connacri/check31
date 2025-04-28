@@ -14,6 +14,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'HomePage.dart';
 import 'Models.dart';
 
 class EnhancedCallScreen extends StatefulWidget {
@@ -218,6 +219,11 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
         ),
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: _loadCallLog),
+          if (_user != null)
+            IconButton(
+              icon: Icon(Icons.feedback),
+              onPressed: () => submitFeedback(context, _user),
+            ),
         ],
       ),
       body:

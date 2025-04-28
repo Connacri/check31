@@ -3,6 +3,8 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:check31/checkit/provider.dart';
 import 'package:check31/checkit/widgets/motifs.dart';
+import 'package:feedback/feedback.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../AppLocalizations.dart';
 import 'users.dart';
@@ -22,14 +24,11 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as su;
 import 'package:timeago/timeago.dart' as timeago;
-import '../MyListLotties.dart';
 import 'AuthProvider.dart';
 import 'EnhancedCallScreen.dart';
 import 'Models.dart';
 import 'admob/main.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
 
 class HomePage3 extends StatefulWidget {
   @override
@@ -372,7 +371,7 @@ class _HomePage3State extends State<HomePage3> {
         leading:
             _user?.displayName != null
                 ? Padding(
-                  padding: const EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.all(8.0),
                   child: InkWell(
                     onTap: () {
                       // Vérifiez si une publicité interstitielle est prête
@@ -394,30 +393,40 @@ class _HomePage3State extends State<HomePage3> {
                     },
                     child: CircleAvatar(
                       backgroundImage: NetworkImage(_user!.photoURL ?? ''),
-                      radius: 15, // Important : plus petit pour AppBar
+                      radius: 30, // Important : plus petit pour AppBar
                     ),
                   ),
                 )
-                : IconButton(
-                  onPressed:
-                      () => Navigator.of(
-                        context,
-                      ).push(MaterialPageRoute(builder: (ctx) => googleBtn())),
-                  icon: Icon(Icons.account_circle, size: 35),
+                : Padding(
+                  padding: const EdgeInsets.only(left: 15),
+                  child: IconButton(
+                    onPressed:
+                        () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (ctx) => googleBtn()),
+                        ),
+                    icon: Icon(Icons.account_circle, size: 40),
+                  ),
                 ),
+        titleSpacing: 0,
         title: Text(
           _user != null
               ? '${_user!.displayName ?? AppLocalizations.of(context).translate('user')}'
               : AppLocalizations.of(context).translate('unknownUser'),
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
+          style: TextStyle(
+            fontFamily: 'oswald',
             color: Colors.black45,
             fontSize: 20,
             fontWeight: FontWeight.w500,
           ),
         ),
         actions: [
+          if (_user != null)
+            IconButton(
+              icon: Icon(Icons.feedback),
+              onPressed: () => submitFeedback(context, _user),
+            ),
           LanguageDropdownFlag(),
           _user == null
               ? SizedBox.shrink()
@@ -439,29 +448,7 @@ class _HomePage3State extends State<HomePage3> {
                   // padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 ),
               ),
-          // _user == null || _user!.email != 'forslog@gmail.com'
-          //     ? SizedBox.shrink()
-          //     : IconButton.outlined(
-          //         onPressed: () => Navigator.of(context).push(
-          //             MaterialPageRoute(builder: (ctx) => LottieListPage())),
-          //         icon: Icon(Icons.animation)),
-          // _user == null || _user!.email != 'forslog@gmail.com'
-          //     ? SizedBox.shrink()
-          //     : IconButton.outlined(
-          //       onPressed:
-          //           () => Navigator.of(
-          //             context,
-          //           ).push(MaterialPageRoute(builder: (ctx) => UsersPage())),
-          //       icon: Icon(
-          //         Icons.supervised_user_circle_sharp,
-          //         color: Colors.blue,
-          //       ),
-          //     ),
-          // if (_user != null)
-          //   IconButton(
-          //     icon: Icon(Icons.logout),
-          //     onPressed: _handleSignOut,
-          //   ),
+
           SizedBox(width: 5),
         ],
       ),
@@ -481,40 +468,6 @@ class _HomePage3State extends State<HomePage3> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  // FittedBox(
-                  //   child: Row(
-                  //     mainAxisAlignment: MainAxisAlignment.center,
-                  //     crossAxisAlignment: CrossAxisAlignment.center,
-                  //
-                  //     children: const [
-                  //       Text(
-                  //         'Check',
-                  //         style: TextStyle(
-                  //           fontSize: 25,
-                  //           fontWeight: FontWeight.bold,
-                  //         ),
-                  //       ),
-                  //       Text(
-                  //         '.',
-                  //         style: TextStyle(
-                  //           fontSize: 25,
-                  //           fontWeight: FontWeight.bold,
-                  //           color: Colors.red,
-                  //           textBaseline: TextBaseline.alphabetic,
-                  //         ),
-                  //       ),
-                  //
-                  //       Text(
-                  //         'it',
-                  //         style: TextStyle(
-                  //           fontSize: 25,
-                  //           fontWeight: FontWeight.bold,
-                  //           color: Colors.red,
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                   _user != null && _user!.email == 'forslog@gmail.com'
                       ? Consumer<UsersProvider>(
                         builder:
@@ -546,23 +499,10 @@ class _HomePage3State extends State<HomePage3> {
                       : SizedBox.shrink(),
                   SizedBox(height: 10),
 
-                  // Center(
-                  //   child: Text(
-                  //     AppLocalizations.of(context).translate('hello'),
-                  //     style: TextStyle(fontSize: 24),
-                  //   ),
-                  // ),
-                  SizedBox(height: 10),
-                  AnimatedTextKit(
-                    animatedTexts: animatedWords,
-                    repeatForever: true,
-                    pause: Duration(milliseconds: 1000),
-                    isRepeatingAnimation: true,
-                  ),
                   SizedBox(height: 10),
                   SizedBox(
-                    height: 180,
-                    width: 180,
+                    height: 150,
+                    width: 150,
                     child: InkWell(
                       onTap: () {
                         showAboutDialog(
@@ -599,7 +539,20 @@ class _HomePage3State extends State<HomePage3> {
                       child: Lottie.asset('assets/lotties/1 (128).json'),
                     ),
                   ),
-                  SizedBox(height: 10),
+
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12.0),
+                      // Adjust the radius as needed
+                      child: Image.asset(
+                        'assets/logos/logoo.png',
+                        //height: 50,
+                        width: 150,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
                   AnimatedTextField(
                     // fieldKey: _numeroFieldKey,
                     controller: numeroController,
@@ -1109,6 +1062,13 @@ class _googleBtnState extends State<googleBtn> {
                   '${AppLocalizations.of(context).translate('profil')}',
                   style: const TextStyle(fontFamily: 'ArbFONTS'),
                 ),
+        actions: [
+          if (_user != null)
+            IconButton(
+              icon: Icon(Icons.feedback),
+              onPressed: () => submitFeedback(context, _user),
+            ),
+        ],
       ),
       body: Center(
         child:
@@ -1976,3 +1936,34 @@ final List<TyperAnimatedText> animatedWords =
         textStyle: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
       );
     }).toList();
+
+Future<String> _writeScreenshotToStorage(Uint8List screenshot) async {
+  final directory = await getTemporaryDirectory();
+  final filePath = '${directory.path}/feedback.png';
+  final file = File(filePath);
+
+  await file.writeAsBytes(screenshot);
+
+  return filePath;
+}
+
+void submitFeedback(BuildContext context, _user) async {
+  BetterFeedback.of(context).show((UserFeedback feedback) async {
+    // Convert Uint8List to a temporary file
+    final tempDir = await getTemporaryDirectory();
+    final file = File('${tempDir.path}/screenshot.png');
+    await file.writeAsBytes(feedback.screenshot);
+
+    // Create an email with the feedback text and screenshot attachment
+    final Email email = Email(
+      body: feedback.text,
+      subject: 'User Feedback ${_user!.displayName}',
+      recipients: ['oran.inturk@gmail.com'],
+      attachmentPaths: [await _writeScreenshotToStorage(feedback.screenshot)],
+      isHTML: false,
+    );
+    print(feedback.text);
+    // Send the email
+    await FlutterEmailSender.send(email);
+  });
+}

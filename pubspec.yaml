@@ -3,7 +3,7 @@ description: "A new ChechIT project."
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.5+6
+version: 1.0.7+8
 
 environment:
   sdk: ^3.7.0
@@ -45,6 +45,8 @@ dependencies:
   animated_text_kit: ^4.2.3
   pretty_animated_text: ^2.0.0
   flutter_localization: ^0.3.2
+  feedback: ^3.1.0
+  flutter_email_sender: ^7.0.0
 
 
 dev_dependencies:
@@ -135,6 +137,7 @@ flutter:
     - assets/logos/mobilis.png
     - assets/logos/ooredoo.png
     - assets/splash_logo.png
+    - assets/logos/logoo.png
     - assets/flags/
     - assets/i18n/
 
