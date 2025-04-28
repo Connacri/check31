@@ -358,7 +358,6 @@ class LanguageDropdownFlag extends StatelessWidget {
     return PopupMenuButton<String>(
       icon: _getLanguageFlag(localizationModel.locale.languageCode),
       onSelected: (String languageCode) {
-        // Changer la langue et sauvegarder le choix
         localizationModel.changeLocale(languageCode);
       },
       itemBuilder:
@@ -403,6 +402,56 @@ class LanguageDropdownFlag extends StatelessWidget {
                 ],
               ),
             ),
+            PopupMenuItem<String>(
+              value: 'zh',
+              child: Row(
+                children: [
+                  _getLanguageFlag('zh'),
+                  SizedBox(width: 10),
+                  Text('中文'),
+                ],
+              ),
+            ),
+            PopupMenuItem<String>(
+              value: 'ja',
+              child: Row(
+                children: [
+                  _getLanguageFlag('ja'),
+                  SizedBox(width: 10),
+                  Text('日本語'),
+                ],
+              ),
+            ),
+            PopupMenuItem<String>(
+              value: 'th',
+              child: Row(
+                children: [
+                  _getLanguageFlag('th'),
+                  SizedBox(width: 10),
+                  Text('ไทย'),
+                ],
+              ),
+            ),
+            PopupMenuItem<String>(
+              value: 'ru',
+              child: Row(
+                children: [
+                  _getLanguageFlag('ru'),
+                  SizedBox(width: 10),
+                  Text('Русский'),
+                ],
+              ),
+            ),
+            PopupMenuItem<String>(
+              value: 'it',
+              child: Row(
+                children: [
+                  _getLanguageFlag('it'),
+                  SizedBox(width: 10),
+                  Text('Italiano'),
+                ],
+              ),
+            ),
           ],
     );
   }
@@ -417,8 +466,18 @@ class LanguageDropdownFlag extends StatelessWidget {
         return Image.asset('assets/flags/flag_ar.png', width: 24);
       case 'es':
         return Image.asset('assets/flags/flag_es.png', width: 24);
+      case 'zh':
+        return Image.asset('assets/flags/flag_cn.png', width: 24);
+      case 'ja':
+        return Image.asset('assets/flags/flag_jp.png', width: 24);
+      case 'th':
+        return Image.asset('assets/flags/flag_th.png', width: 24);
+      case 'ru':
+        return Image.asset('assets/flags/flag_ru.png', width: 24);
+      case 'it':
+        return Image.asset('assets/flags/flag_it.png', width: 24);
       default:
-        return Image.asset('assets/flags/fr.png', width: 24);
+        return Image.asset('assets/flags/flag_fr.png', width: 24);
     }
   }
 }

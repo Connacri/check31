@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:check31/checkit/provider.dart';
+import 'package:check31/checkit/widgets/motifs.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../AppLocalizations.dart';
 import 'users.dart';
@@ -360,34 +361,6 @@ class _HomePage3State extends State<HomePage3> {
           ),
     );
   }
-
-  String selectedMotif = 'motifFraud'; // Utiliser la clé ici
-
-  final List<String> motifs = [
-    'motifFraud',
-    'motifAbusiveBehavior',
-    'motifExcessiveReturns',
-    'motifNonPayment',
-    'motifViolationTerms',
-    'motifShoplifting',
-    'motifFalseClaim',
-    'motifMisusePromotions',
-    'motifSuspiciousBehavior',
-    'motifNonComplianceSafetyRules',
-    'motifRefusalReceipt',
-    'motifLatePayment',
-    'motifFraudulentPaymentMethods',
-    'motifBadFaithClaim',
-    'motifNonComplianceDelivery',
-    'motifReturnAbuse',
-    'motifUnjustifiedRefundRequest',
-    'motifUseFalsifiedDocuments',
-    'motifNonDeliveryToCorrectPerson',
-    'motifFraudAttemptProducts',
-    'motifFrequentOrderChanges',
-    'motifThreateningBehavior',
-    'motifSafetyInstructionsIgnorance',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -819,9 +792,13 @@ class _HomePage3State extends State<HomePage3> {
                                   final signalement = Signalement(
                                     numero: numero,
                                     signalePar: _user!.displayName!,
-                                    motif: motifController.text.trim(),
                                     gravite: 1,
-                                    description: selectedMotif,
+                                    motif: _showDetail ? selectedMotif : '',
+                                    description:
+                                        _showDetail
+                                            ? ''
+                                            : motifController.text.trim(),
+
                                     date: DateTime.now(),
                                     user: _user!.uid,
                                   );

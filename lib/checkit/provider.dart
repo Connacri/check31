@@ -8,7 +8,6 @@ import 'Models.dart';
 
 final firebaseApp = Firebase.app();
 
-/// Provider pour gérer les signalements via Firebase Realtime Database
 class SignalementProvider with ChangeNotifier {
   final DatabaseReference _db = FirebaseDatabase.instance.ref("signalements");
 
@@ -129,18 +128,6 @@ class UsersProvider extends ChangeNotifier {
 
   Future<int> getSignalementsCount(String userId) async {
     try {
-      // Option 1: Using a custom RPC function if you've defined one on your Supabase project
-      // Requires you to create a function on your Supabase backend first:
-      // CREATE FUNCTION count_signalements(user_id TEXT) RETURNS INT AS $$
-      //   SELECT COUNT(*) FROM signalements WHERE "signalePar" = user_id;
-      // $$ LANGUAGE SQL;
-
-      // final response = await Supabase.instance.client
-      //     .rpc('count_signalements', params: {'user_id': userId});
-      // return response as int;
-
-      // Option 2: Simple counting by fetching all results
-      print('********************************');
       print(userId);
 
       final response = await Supabase.instance.client
@@ -156,18 +143,19 @@ class UsersProvider extends ChangeNotifier {
   }
 }
 
-// class LocalizationModel with ChangeNotifier {
-//   Locale _locale = Locale('en');
-//
-//   Locale get locale => _locale;
-//
-//   void changeLocale(String languageCode) {
-//     _locale = Locale(languageCode);
-//     notifyListeners();
-//   }
-// }
 class LocalizationModel with ChangeNotifier {
   Locale _locale = Locale('fr'); // Valeur par défaut
+  final List<String> supportedLanguages = [
+    'en',
+    'fr',
+    'ar',
+    'es',
+    'zh',
+    'ja',
+    'th',
+    'ru',
+    'it',
+  ];
 
   Locale get locale => _locale;
 
@@ -179,33 +167,41 @@ class LocalizationModel with ChangeNotifier {
       // Vérifier si une langue est déjà sauvegardée
       String? savedLanguage = prefs.getString('language_code');
 
-      if (savedLanguage != null) {
-        // Utiliser la langue sauvegardée
+      if (savedLanguage != null && supportedLanguages.contains(savedLanguage)) {
+        // Utiliser la langue sauvegardée si elle est supportée
         _locale = Locale(savedLanguage);
       } else {
-        // Utiliser la langue du système
+        // Utiliser la langue du système si elle est supportée
         final String deviceLocale =
             WidgetsBinding.instance.platformDispatcher.locale.languageCode;
 
         // Vérifier si la langue du système est supportée
-        if (['en', 'fr', 'ar', 'es'].contains(deviceLocale)) {
+        if (supportedLanguages.contains(deviceLocale)) {
           _locale = Locale(deviceLocale);
         } else {
           // Langue par défaut si celle du système n'est pas supportée
           _locale = Locale('fr');
         }
+
+        // Sauvegarder la locale détectée ou par défaut
+        await prefs.setString('language_code', _locale.languageCode);
       }
 
       notifyListeners();
     } catch (e) {
       print("Erreur lors de l'initialisation de la locale: $e");
       // En cas d'erreur, on garde la locale par défaut
+      _locale = Locale('fr');
     }
   }
 
   // Changer la langue et la sauvegarder
   Future<void> changeLocale(String languageCode) async {
     try {
+      if (!supportedLanguages.contains(languageCode)) {
+        throw Exception('Langue non supportée: $languageCode');
+      }
+
       _locale = Locale(languageCode);
 
       // Sauvegarder la langue dans SharedPreferences
@@ -215,6 +211,7 @@ class LocalizationModel with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       print("Erreur lors du changement de locale: $e");
+      rethrow; // Permet à l'UI de gérer l'erreur si nécessaire
     }
   }
 }

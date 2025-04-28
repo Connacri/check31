@@ -79,5 +79,13 @@
   "etatSignalementInconnu": "État de signalement inconnu.",
   "fois": "Fois",
   "fermer": "Fermer",
-  "checkItDescription": "CHECK-IT est une application qui vous permet de signaler et vérifier les numéros frauduleux à l'origine de retours de produits et de pertes financières pour les commerçants."
+  "checkItDescription": "CHECK-IT est une application qui vous permet de signaler et vérifier les numéros frauduleux à l'origine de retours de produits et de pertes financières pour les commerçants.",
+  "confirmSignal": "Confirmer le signalement",
+  "confirmNumber": "Voulez-vous vraiment signaler ce numéro ?",
+  "alreadyReportedConfirm": "Ce numéro a déjà été signalé. Voulez-vous vraiment encore le re-signaler ?",
+  "reportDetails": "Détails du signalement",
+  "noReportForNumber": "Aucun signalement pour ce numéro",
+  "reportedOn": "Signalé le",
+  "date": "Date",
+  "type": "Type"
 }

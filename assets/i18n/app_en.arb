@@ -79,5 +79,13 @@
   "etatSignalementInconnu": "Report status unknown.",
   "fois": "Times",
   "fermer": "Close",
-  "checkItDescription": "CHECK-IT is an app that allows you to report and verify fraudulent numbers that are responsible for product returns and financial losses for merchants."
+  "checkItDescription": "CHECK-IT is an app that allows you to report and verify fraudulent numbers that are responsible for product returns and financial losses for merchants.",
+  "confirmSignal": "Confirm Report",
+  "confirmNumber": "Are you sure you want to report this number?",
+  "alreadyReportedConfirm": "This number has already been reported. Do you really want to report it again?",
+  "reportDetails": "Report details",
+  "noReportForNumber": "No report for this number",
+  "reportedOn": "Reported on",
+  "date": "Date",
+  "type": "Type"
 }

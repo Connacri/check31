@@ -79,6 +79,14 @@
   "etatSignalementInconnu": "Estado del reporte desconocido.",
   "fois": "Veces",
   "fermer": "Cerrar",
-  "checkItDescription": "CHECK-IT es una aplicación que le permite informar y verificar números fraudulentos responsables de devoluciones de productos y pérdidas financieras para los comerciantes."
+  "checkItDescription": "CHECK-IT es una aplicación que le permite informar y verificar números fraudulentos responsables de devoluciones de productos y pérdidas financieras para los comerciantes.",
+  "confirmSignal": "Confirmar reporte",
+  "confirmNumber": "¿Estás seguro de querer reportar este número?",
+  "alreadyReportedConfirm": "Este número ya ha sido reportado. ¿Realmente desea volver a reportarlo?",
+  "reportDetails": "Detalles del reporte",
+  "noReportForNumber": "No hay reportes para este número",
+  "reportedOn": "Reportado el",
+  "date": "Fecha",
+  "type": "Tipo"
 }
 
