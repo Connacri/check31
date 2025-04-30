@@ -47,7 +47,7 @@ dependencies:
   flutter_localization: ^0.3.2
   feedback: ^3.1.0
   flutter_email_sender: ^7.0.0
-  geolocator: ^14.0.0
+#  geolocator: ^14.0.0
 
 
 dev_dependencies:

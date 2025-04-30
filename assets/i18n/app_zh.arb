@@ -87,5 +87,10 @@
   "noReportForNumber": "该号码无举报记录",
   "reportedOn": "举报于",
   "date": "日期",
-  "type": "类型"
+  "type": "类型",
+  "gps_disabled": "GPS已禁用",
+  "enable_gps_message": "请启用GPS以使用此应用程序。",
+  "retry": "重试",
+  "permission_denied_title": "权限被永久拒绝",
+  "permission_denied_message": "位置访问权限已被永久拒绝。请在应用设置中手动启用。"
 }

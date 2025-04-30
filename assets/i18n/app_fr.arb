@@ -87,5 +87,10 @@
   "noReportForNumber": "Aucun signalement pour ce numéro",
   "reportedOn": "Signalé le",
   "date": "Date",
-  "type": "Type"
+  "type": "Type",
+  "gps_disabled": "GPS désactivé",
+  "enable_gps_message": "Veuillez activer le GPS pour utiliser cette application.",
+  "retry": "Réessayer",
+  "permission_denied_title": "Permission refusée définitivement",
+  "permission_denied_message": "La permission d'accès à la localisation a été refusée définitivement. Veuillez l'activer manuellement dans les paramètres de l'application."
 }

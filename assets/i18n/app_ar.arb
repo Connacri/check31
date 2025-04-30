@@ -87,6 +87,11 @@
   "noReportForNumber": "لا يوجد بلاغ لهذا الرقم",
   "reportedOn": "تم الإبلاغ في",
   "date": "التاريخ",
-  "type": "النوع"
+  "type": "النوع",
+  "gps_disabled": "GPS معطل",
+  "enable_gps_message": "يرجى تفعيل GPS لاستخدام هذا التطبيق.",
+  "retry": "إعادة المحاولة",
+  "permission_denied_title": "تم رفض الإذن بشكل دائم",
+  "permission_denied_message": "تم رفض إذن الوصول إلى الموقع بشكل دائم. يرجى تمكينه يدويًا في إعدادات التطبيق."
 }
 

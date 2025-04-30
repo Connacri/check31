@@ -87,6 +87,11 @@
   "noReportForNumber": "No hay reportes para este número",
   "reportedOn": "Reportado el",
   "date": "Fecha",
-  "type": "Tipo"
+  "type": "Tipo",
+  "gps_disabled": "GPS desactivado",
+  "enable_gps_message": "Por favor, active el GPS para usar esta aplicación.",
+  "retry": "Reintentar",
+  "permission_denied_title": "Permiso denegado permanentemente",
+  "permission_denied_message": "El permiso de acceso a la ubicación ha sido denegado permanentemente. Por favor, actívalo manualmente en la configuración de la aplicación."
 }
 

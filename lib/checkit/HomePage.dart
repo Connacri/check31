@@ -5,7 +5,7 @@ import 'package:check31/checkit/provider.dart';
 import 'package:check31/checkit/widgets/motifs.dart';
 import 'package:feedback/feedback.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
-import 'package:geolocator/geolocator.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 import '../AppLocalizations.dart';
 import 'users.dart';
@@ -114,6 +114,7 @@ class _HomePage3State extends State<HomePage3> {
   bool _isInterstitialAdReady = false;
 
   bool _isInAlgeria = false;
+  bool _isGpsDisabled = false;
 
   @override
   void initState() {
@@ -158,7 +159,9 @@ class _HomePage3State extends State<HomePage3> {
     _loadBannerAd();
     _loadInterstitialAd1();
     _loadInterstitialAd2();
-    _checkLocationPermission();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      //  _checkLocationPermission();
+    });
   }
 
   Future<void> _loadUsersAsync() async {
@@ -359,56 +362,131 @@ class _HomePage3State extends State<HomePage3> {
     );
   }
 
-  Future<void> _checkLocationPermission() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-        'Location permissions are permanently denied, we cannot request permissions.',
-      );
-    }
-
-    _checkLocation();
-  }
-
-  Future<void> _checkLocation() async {
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
-      // Coordonnées approximatives de l'Algérie
-      double minLat = 18.95; // Latitude minimale
-      double maxLat = 37.09; // Latitude maximale
-      double minLng = -8.67; // Longitude minimale
-      double maxLng = 11.99; // Longitude maximale
-
-      if (position.latitude >= minLat &&
-          position.latitude <= maxLat &&
-          position.longitude >= minLng &&
-          position.longitude <= maxLng) {
-        setState(() {
-          _isInAlgeria = true;
-        });
-      }
-    } catch (e) {
-      print('Erreur lors de la récupération de la localisation: $e');
-    }
-  }
+  // Future<void> _checkLocationPermission() async {
+  //   bool serviceEnabled;
+  //   LocationPermission permission;
+  //
+  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!serviceEnabled) {
+  //     _showGpsDisabledDialog();
+  //     return;
+  //   }
+  //
+  //   permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.denied) {
+  //     permission = await Geolocator.requestPermission();
+  //     if (permission == LocationPermission.denied) {
+  //       _showPermissionDeniedDialog();
+  //       return;
+  //     }
+  //   }
+  //
+  //   if (permission == LocationPermission.deniedForever) {
+  //     _showPermissionDeniedForeverDialog();
+  //     return;
+  //   }
+  //
+  //   _checkLocation();
+  // }
+  //
+  // Future<void> _checkLocation() async {
+  //   try {
+  //     Position position = await Geolocator.getCurrentPosition(
+  //       desiredAccuracy: LocationAccuracy.high,
+  //     );
+  //
+  //     // Coordonnées approximatives de l'Algérie
+  //     double minLat = 18.95; // Latitude minimale
+  //     double maxLat = 37.09; // Latitude maximale
+  //     double minLng = -8.67; // Longitude minimale
+  //     double maxLng = 11.99; // Longitude maximale
+  //
+  //     if (position.latitude >= minLat &&
+  //         position.latitude <= maxLat &&
+  //         position.longitude >= minLng &&
+  //         position.longitude <= maxLng) {
+  //       setState(() {
+  //         _isInAlgeria = true;
+  //       });
+  //     }
+  //   } catch (e) {
+  //     print('Erreur lors de la récupération de la localisation: $e');
+  //   }
+  // }
+  //
+  // void _showGpsDisabledDialog() {
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     // Empêche la fermeture du dialogue en cliquant en dehors
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text(
+  //           '${AppLocalizations.of(context).translate('gps_disabled')}',
+  //         ),
+  //         content: Text(
+  //           '${AppLocalizations.of(context).translate('enable_gps_message')}',
+  //         ),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             child: Text('${AppLocalizations.of(context).translate('retry')}'),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //               _checkLocationPermission();
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+  //
+  // void _showPermissionDeniedDialog() {
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text('Permission refusée'),
+  //         content: Text(
+  //           'Veuillez accorder la permission d\'accès à la localisation.',
+  //         ),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             child: Text('Réessayer'),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //               _checkLocationPermission();
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+  //
+  // void _showPermissionDeniedForeverDialog() {
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text('Permission refusée définitivement'),
+  //         content: Text(
+  //           'La permission d\'accès à la localisation a été refusée définitivement. Veuillez l\'activer manuellement dans les paramètres de l\'application.',
+  //         ),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             child: Text('OK'),
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -502,465 +580,514 @@ class _HomePage3State extends State<HomePage3> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: //const EdgeInsets.all(8.0),
-              EdgeInsets.only(
-            left: 8,
-            right: 8,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 10,
-            top: 0,
-          ),
-          child: IntrinsicHeight(
-            child: Form(
-              key: _formKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  _user != null && _user!.email == 'forslog@gmail.com'
-                      ? Consumer<UsersProvider>(
-                        builder:
-                            (context, provider, _) => Card(
-                              color: Colors.deepPurple,
-                              child: ListTile(
+        child:
+            _isGpsDisabled
+                ? Center(
+                  child: Text(
+                    'Veuillez activer le GPS pour utiliser cette application.',
+                  ),
+                )
+                : Padding(
+                  padding: //const EdgeInsets.all(8.0),
+                      EdgeInsets.only(
+                    left: 8,
+                    right: 8,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 10,
+                    top: 0,
+                  ),
+                  child: IntrinsicHeight(
+                    child: Form(
+                      key: _formKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          _isInAlgeria
+                              ? Text('Vous êtes en Algérie.')
+                              : Text('Vérification de la localisation...'),
+                          _user != null && _user!.email == 'forslog@gmail.com'
+                              ? Consumer<UsersProvider>(
+                                builder:
+                                    (context, provider, _) => Card(
+                                      color: Colors.deepPurple,
+                                      child: ListTile(
+                                        onTap:
+                                            () => Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (ctx) => UsersPage(),
+                                              ),
+                                            ),
+                                        leading: CircleAvatar(
+                                          child: Text(
+                                            '${provider.users.length}',
+                                            style: TextStyle(fontSize: 20),
+                                          ),
+                                        ),
+                                        title: Text(
+                                          'Utilisateurs',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                              )
+                              : SizedBox.shrink(),
+                          SizedBox(height: 10),
+
+                          SizedBox(height: 10),
+                          SizedBox(
+                            height: 150,
+                            width: 150,
+                            child: InkWell(
+                              onTap: () {
+                                showAboutDialog(
+                                  context: context,
+                                  useRootNavigator: false,
+                                  routeSettings: RouteSettings(),
+                                  applicationIcon: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    // Coins arrondis
+                                    child: Image.asset(
+                                      'assets/icon/icon.png',
+                                      // Change avec ton chemin d’image
+                                      height: 50,
+                                      width: 50,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  applicationName: 'Check-it',
+                                  applicationVersion: '1.0.6',
+                                  applicationLegalese: '© 2025 Inturk Oran',
+
+                                  children: [
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      ).translate('checkItDescription'),
+
+                                      textAlign: TextAlign.justify,
+                                    ),
+                                  ],
+                                );
+                              },
+                              child: Lottie.asset(
+                                'assets/lotties/1 (128).json',
+                              ),
+                            ),
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12.0),
+                              // Adjust the radius as needed
+                              child: Image.asset(
+                                'assets/logos/logoo.png',
+                                //height: 50,
+                                width: 150,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                          AnimatedTextField(
+                            // fieldKey: _numeroFieldKey,
+                            controller: numeroController,
+                            labelText: AppLocalizations.of(
+                              context,
+                            ).translate('number'),
+                            keyboardType: TextInputType.phone,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'[0-9+ ]'),
+                              ),
+                            ],
+                            resetOnClear: true,
+                            isNumberPhone: true,
+                            onTextCleared: () {
+                              setState(() {
+                                _showSignalBtn =
+                                    true; // Ceci sera appelé quand le champ est vidé
+                              });
+                            },
+                          ),
+                          SizedBox(height: 10),
+                          _showSignalBtn
+                              ? SizedBox.shrink()
+                              : _showDetail
+                              ? Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 8, 0, 0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: DropdownButtonFormField<String>(
+                                        isExpanded: true,
+                                        decoration: InputDecoration(
+                                          labelText: AppLocalizations.of(
+                                            context,
+                                          ).translate('reason'),
+                                          alignLabelWithHint: true,
+                                          hintText: AppLocalizations.of(
+                                            context,
+                                          ).translate('longtext'),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8.0,
+                                            ),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          filled: true,
+                                          contentPadding: EdgeInsets.all(15),
+                                        ),
+                                        value: selectedMotif,
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            selectedMotif = newValue!;
+                                          });
+                                        },
+                                        items:
+                                            motifs.map<
+                                              DropdownMenuItem<String>
+                                            >((String value) {
+                                              return DropdownMenuItem<String>(
+                                                value: value,
+                                                child: Text(
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  ).translate(value),
+                                                ),
+                                              );
+                                            }).toList(),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return AppLocalizations.of(
+                                              context,
+                                            ).translate('valide');
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          _showDetail = !_showDetail;
+                                        });
+                                      },
+                                      icon: Icon(
+                                        _showDetail
+                                            ? FontAwesomeIcons.arrowDown
+                                            : null,
+                                        size: 17,
+                                      ),
+                                    ),
+                                    //child: Text(_showDetail ? "Ajouter Motif" : 'Reduire')),
+                                  ],
+                                ),
+                              )
+                              : SizedBox.shrink(),
+                          _showSignalBtn
+                              ? SizedBox.shrink()
+                              : _showDetail
+                              ? SizedBox.shrink()
+                              : Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        8,
+                                        8,
+                                        0,
+                                        0,
+                                      ),
+                                      child: AnimatedLongTextField(
+                                        controller: motifController,
+                                        labelText: AppLocalizations.of(
+                                          context,
+                                        ).translate('reason'),
+                                        validator: (value) {
+                                          return null;
+
+                                          // if (value == null || value.isEmpty) {
+                                          //   return 'Veuillez entrer un motif';
+                                          // }
+                                          // return null;
+                                        },
+                                        isNumberPhone: false,
+                                      ),
+                                    ),
+                                    // AnimatedTextField(
+                                    //   controller: motifController,
+                                    //   labelText: 'Motif',
+                                    //   validator: (value) {
+                                    //     // if (value == null || value.isEmpty) {
+                                    //     //   return 'Veuillez entrer un motif';
+                                    //     // }
+                                    //     // return null;
+                                    //   },
+                                    //   isNumberPhone: false,
+                                    // ),
+                                  ),
+                                  IconButton(
+                                    padding: EdgeInsets.fromLTRB(0, 28, 0, 0),
+                                    onPressed: () {
+                                      setState(() {
+                                        _showDetail = !_showDetail;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      FontAwesomeIcons.arrowUp,
+                                      size: 17,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          _showSignalBtn
+                              ? SizedBox.shrink()
+                              : SizedBox(height: 20),
+                          Row(
+                            mainAxisAlignment:
+                                _showSignalBtn
+                                    ? MainAxisAlignment.center
+                                    : MainAxisAlignment.spaceAround,
+                            children: [
+                              _showSignalBtn
+                                  ? SizedBox.shrink()
+                                  : ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      foregroundColor:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onPrimary,
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.primary,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          15.0,
+                                        ),
+                                      ),
+                                    ),
+                                    onPressed: () async {
+                                      if (_user != null) {
+                                        if (_formKey.currentState!.validate()) {
+                                          final numero =
+                                              _isInAlgeria
+                                                  ? provider
+                                                      .normalizeAndValidateAlgerianPhone(
+                                                        numeroController.text
+                                                            .trim(),
+                                                      )
+                                                  : numeroController.text
+                                                      .trim();
+
+                                          if (numero == null) {
+                                            _showErrorDialog(
+                                              AppLocalizations.of(
+                                                context,
+                                              ).translate('invalideNumber'),
+                                            );
+                                            return;
+                                          }
+
+                                          // Vérification si le numéro a déjà été signalé par l'utilisateur
+                                          final alreadyReported = await provider
+                                              .checkIfAlreadyReported(
+                                                numero,
+                                                _user!.uid,
+                                              );
+                                          print(numero);
+                                          print(_user!.uid);
+
+                                          if (alreadyReported) {
+                                            _showErrorDialog(
+                                              '${AppLocalizations.of(context).translate('dejaSignaler')}\n0$numero.',
+                                            );
+                                            return;
+                                          }
+
+                                          final signalement = Signalement(
+                                            numero: numero,
+                                            signalePar: _user!.displayName!,
+                                            gravite: 1,
+                                            motif:
+                                                _showDetail
+                                                    ? selectedMotif
+                                                    : '',
+                                            description:
+                                                _showDetail
+                                                    ? ''
+                                                    : motifController.text
+                                                        .trim(),
+
+                                            date: DateTime.now(),
+                                            user: _user!.uid,
+                                          );
+
+                                          await provider.ajouterSignalement(
+                                            signalement,
+                                            _user!.uid,
+                                          );
+
+                                          // Réinitialiser les champs
+                                          numeroController.clear();
+                                          motifController.clear();
+
+                                          setState(() {
+                                            selectedMotif = motifs.first;
+                                            numeroRecherche = numero;
+                                            _showSignalBtn = !_showSignalBtn;
+                                          });
+
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                '${AppLocalizations.of(context).translate('leNum')}\n0$numero  ${AppLocalizations.of(context).translate('abien')}.',
+                                              ),
+                                              backgroundColor: Colors.green,
+                                              duration: Duration(seconds: 3),
+                                            ),
+                                          );
+                                        }
+                                      } else {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (ctx) => googleBtn(),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    label: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      ).translate('signaler'),
+                                    ),
+                                    icon: Icon(
+                                      Icons.add,
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onPrimary,
+                                    ),
+                                  ),
+                              SizedBox(width: 10),
+                              Center(
+                                child: ElevatedButton.icon(
+                                  onPressed: () async {
+                                    //////////////////////////////////////////////////////////////
+                                    // if (_isInterstitialAdReady) {
+                                    //   _interstitialAd?.show();
+                                    // } else {
+                                    //   print("L'annonce interstitielle n'est pas prête");
+                                    // }
+                                    //////////////////////////////////////////////////////////////
+                                    if (_user == null) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (ctx) => googleBtn(),
+                                        ),
+                                      );
+                                    } else {
+                                      setState(() {
+                                        numeroRecherche = null;
+                                      });
+                                      final numero = provider
+                                          .normalizeAndValidateAlgerianPhone(
+                                            numeroController.text.trim(),
+                                          );
+
+                                      if (numero == null) {
+                                        _showErrorDialog(
+                                          AppLocalizations.of(
+                                            context,
+                                          ).translate('invalideNumber'),
+                                        );
+                                        return;
+                                      }
+
+                                      setState(() {
+                                        numeroRecherche = numero;
+                                      });
+                                      _showSignalementDialog(
+                                        context,
+                                        numeroRecherche!,
+                                        provider,
+                                      );
+                                      setState(() {
+                                        _showSignalBtn = false;
+                                      });
+                                    }
+                                  },
+                                  label: Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    ).translate('rechercher'),
+                                  ),
+                                  icon: Icon(Icons.search),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16),
+                          Spacer(),
+                          Center(
+                            child: InkWell(
+                              onTap: () async {
+                                final Uri url = Uri.parse(
+                                  'https://check31-a2fdf.web.app/',
+                                );
+                                if (await canLaunchUrl(url)) {
+                                  await launchUrl(url);
+                                } else {
+                                  throw '${AppLocalizations.of(context).translate('impossibledouvrir')} $url';
+                                }
+                              },
+                              child: Text(
+                                '${AppLocalizations.of(context).translate('website')}',
+
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ),
+                          if (_bannerAd != null)
+                            Expanded(
+                              child: Container(
+                                width: _bannerAd!.size.width.toDouble(),
+                                height: _bannerAd!.size.height.toDouble(),
+                                child: AdWidget(ad: _bannerAd!),
+                              ),
+                            ),
+                          _user == null || _user!.email != 'forslog@gmail.com'
+                              ? SizedBox.shrink()
+                              : InkWell(
                                 onTap:
                                     () => Navigator.of(context).push(
                                       MaterialPageRoute(
-                                        builder: (ctx) => UsersPage(),
+                                        builder: (ctx) => MyApp000(),
                                       ),
                                     ),
-                                leading: CircleAvatar(
-                                  child: Text(
-                                    '${provider.users.length}',
-                                    style: TextStyle(fontSize: 20),
-                                  ),
-                                ),
-                                title: Text(
-                                  'Utilisateurs',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.white,
+                                child: SizedBox(
+                                  height: 180,
+                                  width: 180,
+                                  child: Lottie.asset(
+                                    'assets/lotties/1 (26).json',
                                   ),
                                 ),
                               ),
-                            ),
-                      )
-                      : SizedBox.shrink(),
-                  SizedBox(height: 10),
-
-                  SizedBox(height: 10),
-                  SizedBox(
-                    height: 150,
-                    width: 150,
-                    child: InkWell(
-                      onTap: () {
-                        showAboutDialog(
-                          context: context,
-                          useRootNavigator: false,
-                          routeSettings: RouteSettings(),
-                          applicationIcon: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            // Coins arrondis
-                            child: Image.asset(
-                              'assets/icon/icon.png',
-                              // Change avec ton chemin d’image
-                              height: 50,
-                              width: 50,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          applicationName: 'Check-it',
-                          applicationVersion: '1.0.6',
-                          applicationLegalese: '© 2025 Inturk Oran',
-
-                          children: [
-                            const SizedBox(height: 16),
-                            Text(
-                              AppLocalizations.of(
-                                context,
-                              ).translate('checkItDescription'),
-
-                              textAlign: TextAlign.justify,
-                            ),
-                          ],
-                        );
-                      },
-                      child: Lottie.asset('assets/lotties/1 (128).json'),
-                    ),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12.0),
-                      // Adjust the radius as needed
-                      child: Image.asset(
-                        'assets/logos/logoo.png',
-                        //height: 50,
-                        width: 150,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                  AnimatedTextField(
-                    // fieldKey: _numeroFieldKey,
-                    controller: numeroController,
-                    labelText: AppLocalizations.of(context).translate('number'),
-                    keyboardType: TextInputType.phone,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9+ ]')),
-                    ],
-                    resetOnClear: true,
-                    isNumberPhone: true,
-                    onTextCleared: () {
-                      setState(() {
-                        _showSignalBtn =
-                            true; // Ceci sera appelé quand le champ est vidé
-                      });
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  _showSignalBtn
-                      ? SizedBox.shrink()
-                      : _showDetail
-                      ? Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 8, 0, 0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: DropdownButtonFormField<String>(
-                                isExpanded: true,
-                                decoration: InputDecoration(
-                                  labelText: AppLocalizations.of(
-                                    context,
-                                  ).translate('reason'),
-                                  alignLabelWithHint: true,
-                                  hintText: AppLocalizations.of(
-                                    context,
-                                  ).translate('longtext'),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  filled: true,
-                                  contentPadding: EdgeInsets.all(15),
-                                ),
-                                value: selectedMotif,
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    selectedMotif = newValue!;
-                                  });
-                                },
-                                items:
-                                    motifs.map<DropdownMenuItem<String>>((
-                                      String value,
-                                    ) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          ).translate(value),
-                                        ),
-                                      );
-                                    }).toList(),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return AppLocalizations.of(
-                                      context,
-                                    ).translate('valide');
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _showDetail = !_showDetail;
-                                });
-                              },
-                              icon: Icon(
-                                _showDetail ? FontAwesomeIcons.arrowDown : null,
-                                size: 17,
-                              ),
-                            ),
-                            //child: Text(_showDetail ? "Ajouter Motif" : 'Reduire')),
-                          ],
-                        ),
-                      )
-                      : SizedBox.shrink(),
-                  _showSignalBtn
-                      ? SizedBox.shrink()
-                      : _showDetail
-                      ? SizedBox.shrink()
-                      : Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(8, 8, 0, 0),
-                              child: AnimatedLongTextField(
-                                controller: motifController,
-                                labelText: AppLocalizations.of(
-                                  context,
-                                ).translate('reason'),
-                                validator: (value) {
-                                  return null;
-
-                                  // if (value == null || value.isEmpty) {
-                                  //   return 'Veuillez entrer un motif';
-                                  // }
-                                  // return null;
-                                },
-                                isNumberPhone: false,
-                              ),
-                            ),
-                            // AnimatedTextField(
-                            //   controller: motifController,
-                            //   labelText: 'Motif',
-                            //   validator: (value) {
-                            //     // if (value == null || value.isEmpty) {
-                            //     //   return 'Veuillez entrer un motif';
-                            //     // }
-                            //     // return null;
-                            //   },
-                            //   isNumberPhone: false,
-                            // ),
-                          ),
-                          IconButton(
-                            padding: EdgeInsets.fromLTRB(0, 28, 0, 0),
-                            onPressed: () {
-                              setState(() {
-                                _showDetail = !_showDetail;
-                              });
-                            },
-                            icon: Icon(FontAwesomeIcons.arrowUp, size: 17),
-                          ),
+                          SizedBox(height: 100),
+                          SizedBox(height: 10),
                         ],
                       ),
-                  _showSignalBtn ? SizedBox.shrink() : SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment:
-                        _showSignalBtn
-                            ? MainAxisAlignment.center
-                            : MainAxisAlignment.spaceAround,
-                    children: [
-                      _showSignalBtn
-                          ? SizedBox.shrink()
-                          : ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.onPrimary,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                            ),
-                            onPressed: () async {
-                              if (_user != null) {
-                                if (_formKey.currentState!.validate()) {
-                                  final numero =
-                                      _isInAlgeria
-                                          ? provider
-                                              .normalizeAndValidateAlgerianPhone(
-                                                numeroController.text.trim(),
-                                              )
-                                          : numeroController.text.trim();
-
-                                  if (numero == null) {
-                                    _showErrorDialog(
-                                      AppLocalizations.of(
-                                        context,
-                                      ).translate('invalideNumber'),
-                                    );
-                                    return;
-                                  }
-
-                                  // Vérification si le numéro a déjà été signalé par l'utilisateur
-                                  final alreadyReported = await provider
-                                      .checkIfAlreadyReported(
-                                        numero,
-                                        _user!.uid,
-                                      );
-                                  print(numero);
-                                  print(_user!.uid);
-
-                                  if (alreadyReported) {
-                                    _showErrorDialog(
-                                      '${AppLocalizations.of(context).translate('dejaSignaler')}\n0$numero.',
-                                    );
-                                    return;
-                                  }
-
-                                  final signalement = Signalement(
-                                    numero: numero,
-                                    signalePar: _user!.displayName!,
-                                    gravite: 1,
-                                    motif: _showDetail ? selectedMotif : '',
-                                    description:
-                                        _showDetail
-                                            ? ''
-                                            : motifController.text.trim(),
-
-                                    date: DateTime.now(),
-                                    user: _user!.uid,
-                                  );
-
-                                  await provider.ajouterSignalement(
-                                    signalement,
-                                    _user!.uid,
-                                  );
-
-                                  // Réinitialiser les champs
-                                  numeroController.clear();
-                                  motifController.clear();
-
-                                  setState(() {
-                                    selectedMotif = motifs.first;
-                                    numeroRecherche = numero;
-                                    _showSignalBtn = !_showSignalBtn;
-                                  });
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        '${AppLocalizations.of(context).translate('leNum')}\n0$numero  ${AppLocalizations.of(context).translate('abien')}.',
-                                      ),
-                                      backgroundColor: Colors.green,
-                                      duration: Duration(seconds: 3),
-                                    ),
-                                  );
-                                }
-                              } else {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (ctx) => googleBtn(),
-                                  ),
-                                );
-                              }
-                            },
-                            label: Text(
-                              AppLocalizations.of(
-                                context,
-                              ).translate('signaler'),
-                            ),
-                            icon: Icon(
-                              Icons.add,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                          ),
-                      SizedBox(width: 10),
-                      Center(
-                        child: ElevatedButton.icon(
-                          onPressed: () async {
-                            //////////////////////////////////////////////////////////////
-                            // if (_isInterstitialAdReady) {
-                            //   _interstitialAd?.show();
-                            // } else {
-                            //   print("L'annonce interstitielle n'est pas prête");
-                            // }
-                            //////////////////////////////////////////////////////////////
-                            if (_user == null) {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (ctx) => googleBtn(),
-                                ),
-                              );
-                            } else {
-                              setState(() {
-                                numeroRecherche = null;
-                              });
-                              final numero = provider
-                                  .normalizeAndValidateAlgerianPhone(
-                                    numeroController.text.trim(),
-                                  );
-
-                              if (numero == null) {
-                                _showErrorDialog(
-                                  AppLocalizations.of(
-                                    context,
-                                  ).translate('invalideNumber'),
-                                );
-                                return;
-                              }
-
-                              setState(() {
-                                numeroRecherche = numero;
-                              });
-                              _showSignalementDialog(
-                                context,
-                                numeroRecherche!,
-                                provider,
-                              );
-                              setState(() {
-                                _showSignalBtn = false;
-                              });
-                            }
-                          },
-                          label: Text(
-                            AppLocalizations.of(
-                              context,
-                            ).translate('rechercher'),
-                          ),
-                          icon: Icon(Icons.search),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  Spacer(),
-                  Center(
-                    child: InkWell(
-                      onTap: () async {
-                        final Uri url = Uri.parse(
-                          'https://check31-a2fdf.web.app/',
-                        );
-                        if (await canLaunchUrl(url)) {
-                          await launchUrl(url);
-                        } else {
-                          throw '${AppLocalizations.of(context).translate('impossibledouvrir')} $url';
-                        }
-                      },
-                      child: Text(
-                        '${AppLocalizations.of(context).translate('website')}',
-
-                        style: TextStyle(
-                          color: Colors.blue,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
                     ),
                   ),
-                  if (_bannerAd != null)
-                    Expanded(
-                      child: Container(
-                        width: _bannerAd!.size.width.toDouble(),
-                        height: _bannerAd!.size.height.toDouble(),
-                        child: AdWidget(ad: _bannerAd!),
-                      ),
-                    ),
-                  _user == null || _user!.email != 'forslog@gmail.com'
-                      ? SizedBox.shrink()
-                      : InkWell(
-                        onTap:
-                            () => Navigator.of(context).push(
-                              MaterialPageRoute(builder: (ctx) => MyApp000()),
-                            ),
-                        child: SizedBox(
-                          height: 180,
-                          width: 180,
-                          child: Lottie.asset('assets/lotties/1 (26).json'),
-                        ),
-                      ),
-                  SizedBox(height: 100),
-                  SizedBox(height: 10),
-                ],
-              ),
-            ),
-          ),
-        ),
+                ),
       ),
     );
   }

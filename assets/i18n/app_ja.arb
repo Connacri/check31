@@ -87,5 +87,10 @@
   "noReportForNumber": "この番号の報告はありません",
   "reportedOn": "報告日",
   "date": "日付",
-  "type": "種類"
+  "type": "種類",
+  "gps_disabled": "GPSが無効です",
+  "enable_gps_message": "このアプリを使用するにはGPSを有効にしてください。",
+  "retry": "再試行",
+  "permission_denied_title": "権限が永久に拒否されました",
+  "permission_denied_message": "位置情報アクセス権限が永久に拒否されました。アプリ設定で手動で有効にしてください。"
 }
