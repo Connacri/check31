@@ -109,54 +109,54 @@ class _AnimatedTextFieldState extends State<AnimatedTextField>
           key: widget.fieldKey,
           controller: widget.controller,
           decoration:
-              widget.isNumberPhone
-                  ? InputDecoration(
-                    labelText: widget.labelText,
-                    prefixIcon:
-                        widget.controller.text.isNotEmpty
-                            ? _isValid
-                                ? Icon(Icons.check_circle, color: Colors.green)
-                                : Icon(Icons.error, color: Colors.red)
-                            : null,
-                    suffixIcon:
-                        widget.controller.text.isNotEmpty
-                            ? Transform.scale(
-                              scale: 0.7,
-                              child: IconButton(
-                                icon: Icon(Icons.close),
-                                color: Colors.red,
-                                onPressed: () {
-                                  FocusScope.of(
-                                    context,
-                                  ).unfocus(); // Enlève le fo
-                                  setState(() {
-                                    widget.controller.clear();
-                                  });
-                                  if (widget.onTextCleared != null) {
-                                    widget.onTextCleared!();
-                                  }
-                                },
-                              ),
-                            )
-                            : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      // borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Colors.transparent,
-                    contentPadding: EdgeInsets.all(8),
-                  )
-                  : InputDecoration(
-                    labelText: widget.labelText,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      //borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: Colors.transparent,
-                    contentPadding: EdgeInsets.all(8),
-                  ),
+          widget.isNumberPhone
+              ? InputDecoration(
+            labelText: widget.labelText,
+            prefixIcon:
+            widget.controller.text.isNotEmpty
+                ? _isValid
+                ? Icon(Icons.check_circle, color: Colors.green)
+                : Icon(Icons.error, color: Colors.red)
+                : null,
+            suffixIcon:
+            widget.controller.text.isNotEmpty
+                ? Transform.scale(
+              scale: 0.7,
+              child: IconButton(
+                icon: Icon(Icons.close),
+                color: Colors.red,
+                onPressed: () {
+                  FocusScope.of(
+                    context,
+                  ).unfocus(); // Enlève le fo
+                  setState(() {
+                    widget.controller.clear();
+                  });
+                  if (widget.onTextCleared != null) {
+                    widget.onTextCleared!();
+                  }
+                },
+              ),
+            )
+                : null,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              // borderSide: BorderSide.none,
+            ),
+            filled: true,
+            fillColor: Colors.transparent,
+            contentPadding: EdgeInsets.all(8),
+          )
+              : InputDecoration(
+            labelText: widget.labelText,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              //borderSide: BorderSide.none,
+            ),
+            filled: true,
+            fillColor: Colors.transparent,
+            contentPadding: EdgeInsets.all(8),
+          ),
           style: TextStyle(
             fontSize: 25, // Agrandir le texte ici
           ),
@@ -269,7 +269,7 @@ class _AnimatedLongTextFieldState extends State<AnimatedLongTextField>
           alignLabelWithHint: true,
 
           hintText:
-              '${AppLocalizations.of(context).translate('enterLongText')}',
+          '${AppLocalizations.of(context).translate('enterLongText')}',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
             borderSide: BorderSide.none,
@@ -288,7 +288,7 @@ class _AnimatedLongTextFieldState extends State<AnimatedLongTextField>
         minLines: 5,
         // pour afficher directement plusieurs lignes
         expands:
-            false, // false pour ne pas forcer à remplir tout l'espace parent
+        false, // false pour ne pas forcer à remplir tout l'espace parent
       ),
     );
   }
@@ -307,48 +307,14 @@ class LanguageDropdown extends StatelessWidget {
         }
       },
       items:
-          <String>['en', 'fr', 'ar', 'es'].map<DropdownMenuItem<String>>((
-            String value,
-          ) {
-            return DropdownMenuItem<String>(value: value, child: Text(value));
-          }).toList(),
+      <String>['en', 'fr', 'ar', 'es'].map<DropdownMenuItem<String>>((
+          String value,) {
+        return DropdownMenuItem<String>(value: value, child: Text(value));
+      }).toList(),
     );
   }
 }
 
-class LanguageDropdownFlag0 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final localizationModel = Provider.of<LocalizationModel>(context);
-
-    return DropdownButton<String>(
-      value: localizationModel.locale.languageCode,
-      onChanged: (newValue) {
-        if (newValue != null) {
-          localizationModel.changeLocale(newValue);
-        }
-      },
-      items:
-          <String>['en', 'fr', 'ar', 'es'].map<DropdownMenuItem<String>>((
-            String value,
-          ) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Row(
-                children: [
-                  Text(value.toUpperCase()),
-                  SizedBox(width: 5),
-                  CircleAvatar(
-                    backgroundImage: AssetImage('assets/flags/flag_$value.png'),
-                    radius: 16, // Ajustez la taille selon vos besoins
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-    );
-  }
-}
 
 class LanguageDropdownFlag extends StatelessWidget {
   @override
@@ -361,98 +327,99 @@ class LanguageDropdownFlag extends StatelessWidget {
         localizationModel.changeLocale(languageCode);
       },
       itemBuilder:
-          (BuildContext context) => <PopupMenuEntry<String>>[
-            PopupMenuItem<String>(
-              value: 'fr',
-              child: Row(
-                children: [
-                  _getLanguageFlag('fr'),
-                  SizedBox(width: 10),
-                  Text('Français'),
-                ],
-              ),
-            ),
-            PopupMenuItem<String>(
-              value: 'en',
-              child: Row(
-                children: [
-                  _getLanguageFlag('en'),
-                  SizedBox(width: 10),
-                  Text('English'),
-                ],
-              ),
-            ),
-            PopupMenuItem<String>(
-              value: 'ar',
-              child: Row(
-                children: [
-                  _getLanguageFlag('ar'),
-                  SizedBox(width: 10),
-                  Text('العربية'),
-                ],
-              ),
-            ),
-            PopupMenuItem<String>(
-              value: 'es',
-              child: Row(
-                children: [
-                  _getLanguageFlag('es'),
-                  SizedBox(width: 10),
-                  Text('Español'),
-                ],
-              ),
-            ),
-            PopupMenuItem<String>(
-              value: 'zh',
-              child: Row(
-                children: [
-                  _getLanguageFlag('zh'),
-                  SizedBox(width: 10),
-                  Text('中文'),
-                ],
-              ),
-            ),
-            PopupMenuItem<String>(
-              value: 'ja',
-              child: Row(
-                children: [
-                  _getLanguageFlag('ja'),
-                  SizedBox(width: 10),
-                  Text('日本語'),
-                ],
-              ),
-            ),
-            PopupMenuItem<String>(
-              value: 'th',
-              child: Row(
-                children: [
-                  _getLanguageFlag('th'),
-                  SizedBox(width: 10),
-                  Text('ไทย'),
-                ],
-              ),
-            ),
-            PopupMenuItem<String>(
-              value: 'ru',
-              child: Row(
-                children: [
-                  _getLanguageFlag('ru'),
-                  SizedBox(width: 10),
-                  Text('Русский'),
-                ],
-              ),
-            ),
-            PopupMenuItem<String>(
-              value: 'it',
-              child: Row(
-                children: [
-                  _getLanguageFlag('it'),
-                  SizedBox(width: 10),
-                  Text('Italiano'),
-                ],
-              ),
-            ),
-          ],
+          (BuildContext context) =>
+      <PopupMenuEntry<String>>[
+        PopupMenuItem<String>(
+          value: 'fr',
+          child: Row(
+            children: [
+              _getLanguageFlag('fr'),
+              SizedBox(width: 10),
+              Text('Français'),
+            ],
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'en',
+          child: Row(
+            children: [
+              _getLanguageFlag('en'),
+              SizedBox(width: 10),
+              Text('English'),
+            ],
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'ar',
+          child: Row(
+            children: [
+              _getLanguageFlag('ar'),
+              SizedBox(width: 10),
+              Text('العربية'),
+            ],
+          ),
+        ),
+        // PopupMenuItem<String>(
+        //   value: 'es',
+        //   child: Row(
+        //     children: [
+        //       _getLanguageFlag('es'),
+        //       SizedBox(width: 10),
+        //       Text('Español'),
+        //     ],
+        //   ),
+        // ),
+        // PopupMenuItem<String>(
+        //   value: 'zh',
+        //   child: Row(
+        //     children: [
+        //       _getLanguageFlag('zh'),
+        //       SizedBox(width: 10),
+        //       Text('中文'),
+        //     ],
+        //   ),
+        // ),
+        // PopupMenuItem<String>(
+        //   value: 'ja',
+        //   child: Row(
+        //     children: [
+        //       _getLanguageFlag('ja'),
+        //       SizedBox(width: 10),
+        //       Text('日本語'),
+        //     ],
+        //   ),
+        // ),
+        // PopupMenuItem<String>(
+        //   value: 'th',
+        //   child: Row(
+        //     children: [
+        //       _getLanguageFlag('th'),
+        //       SizedBox(width: 10),
+        //       Text('ไทย'),
+        //     ],
+        //   ),
+        // ),
+        // PopupMenuItem<String>(
+        //   value: 'ru',
+        //   child: Row(
+        //     children: [
+        //       _getLanguageFlag('ru'),
+        //       SizedBox(width: 10),
+        //       Text('Русский'),
+        //     ],
+        //   ),
+        // ),
+        // PopupMenuItem<String>(
+        //   value: 'it',
+        //   child: Row(
+        //     children: [
+        //       _getLanguageFlag('it'),
+        //       SizedBox(width: 10),
+        //       Text('Italiano'),
+        //     ],
+        //   ),
+        // ),
+      ],
     );
   }
 

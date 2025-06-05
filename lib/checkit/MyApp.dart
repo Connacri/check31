@@ -31,9 +31,10 @@ class _MyApp99State extends State<MyApp99> {
         String fontAr = 'KHALED';
         return BetterFeedback(
           localeOverride: localizationModel.locale,
+
           child: MaterialApp(
             title: 'Check-it',
-            locale: localizationModel.locale,
+            //  locale: localizationModel.locale,
             // Utilisation de la locale du provider
             supportedLocales: [
               Locale('en'),

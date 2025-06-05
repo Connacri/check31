@@ -145,7 +145,8 @@ class UsersProvider extends ChangeNotifier {
 }
 
 class LocalizationModel with ChangeNotifier {
-  Locale _locale = Locale('fr'); // Valeur par défaut
+  Locale _locale = Locale('en'); // Valeur par défaut
+
   final List<String> supportedLanguages = [
     'en',
     'fr',

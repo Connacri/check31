@@ -23,9 +23,10 @@ Future<void> main() async {
   //FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   //await FlutterLocalization.instance.ensureInitialized();
   // Initialiser la langue avant de lancer l'application
+
   final localizationModel = LocalizationModel();
   await localizationModel.initLocale();
-  MobileAds.instance.initialize();
+  // MobileAds.instance.initialize();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   // Initialisation de Supabase (si async)
   await initializeSupabase();
