@@ -901,41 +901,53 @@ class _HomePage3State extends State<HomePage3> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
-                  SizedBox(height: 12),
-                  Text(
-                    "Aider Moi à améliorer l'application !\n"
-                    "Un simple café peut faire la différence ☕",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    icon: Icon(Icons.coffee, color: Colors.white, size: 30),
-                    label: Text(
-                      "Pay me a coffee",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22,
-                      ),
-                    ),
+                  // SizedBox(height: 16),
+                  // SizedBox(height: 12),
+                  // Text(
+                  //   "Aider Moi à améliorer l'application !\n"
+                  //   "Un simple café peut faire la différence ☕",
+                  //   textAlign: TextAlign.center,
+                  //   style: TextStyle(fontSize: 20),
+                  // ),
+                  // SizedBox(height: 16),
+                  _user != null && _user!.email == 'forslog@gmail.com'
+                      ? Padding(
+                        padding: const EdgeInsets.only(top: 20),
+                        child: ElevatedButton.icon(
+                          icon: Icon(
+                            Icons.coffee,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                          label: Text(
+                            "Pay me a coffee",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
+                            ),
+                          ),
 
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => BinancePage()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 14,
-                      ),
-                      backgroundColor: Colors.orangeAccent,
-                      foregroundColor: Colors.white,
-                      textStyle: TextStyle(fontSize: 16),
-                    ),
-                  ),
+                          onPressed: () {
+                            print(su.User);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BinancePage2(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 14,
+                            ),
+                            backgroundColor: Colors.orangeAccent,
+                            foregroundColor: Colors.white,
+                            textStyle: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      )
+                      : BinancePage(),
 
                   Spacer(),
                   Center(

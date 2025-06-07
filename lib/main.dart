@@ -1,16 +1,17 @@
 import 'dart:async';
-import 'package:feedback/feedback.dart';
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/date_symbol_data_local.dart'; // Importez cette ligne
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as su;
 import 'package:timeago/timeago.dart' as timeago;
-import 'dart:io';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
+
 import 'checkit/MyApp.dart';
 import 'checkit/provider.dart';
 import 'checkit/providerF.dart';
@@ -33,8 +34,9 @@ Future<void> main() async {
 
   //await Firebase.initializeApp(name: projectId, demoProjectId: projectId);
   // Initialisation de Firebase
+  // Initialize Firebase
   await Firebase.initializeApp(
-    // options: DefaultFirebaseOptions.currentPlatform,
+    // options: DefaultFirebaseOptions.currentPlatform
   );
 
   // // Configuration de Firestore (cache local activé)

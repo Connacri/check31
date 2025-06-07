@@ -35,8 +35,8 @@ android {
         multiDexEnabled = true
         minSdk = 23//flutter.minSdkVersion
         targetSdk = 35//flutter.targetSdkVersion
-        versionCode = 12//flutter.versionCode
-        versionName = "1.0.11"//flutter.versionName
+        versionCode = 15//flutter.versionCode
+        versionName = "1.0.15"//flutter.versionName
     }
 
     signingConfigs {
