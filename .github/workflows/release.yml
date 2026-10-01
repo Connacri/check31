@@ -104,57 +104,73 @@ jobs:
           } > android/key.properties
           echo "Keystore dechiffre : alias ${{ secrets.ANDROID_KEY_ALIAS }}"
 
+      # continue-on-error : chaque cible est construite independamment.
+      # Si le build web plante, les APK et l'AAB sont quand meme publies.
       - name: Build APK universal
+        continue-on-error: true
         run: flutter build apk --release
         env:
           FLUTTER_BUILD_VERSION_CODE: ${{ steps.version.outputs.version_code }}
           FLUTTER_BUILD_VERSION_NAME: ${{ steps.version.outputs.version_name }}
 
       - name: Build APKs split par ABI
+        continue-on-error: true
         run: flutter build apk --release --split-per-abi
         env:
           FLUTTER_BUILD_VERSION_CODE: ${{ steps.version.outputs.version_code }}
           FLUTTER_BUILD_VERSION_NAME: ${{ steps.version.outputs.version_name }}
 
       - name: Build AAB (Google Play)
+        continue-on-error: true
         run: flutter build appbundle --release
         env:
           FLUTTER_BUILD_VERSION_CODE: ${{ steps.version.outputs.version_code }}
           FLUTTER_BUILD_VERSION_NAME: ${{ steps.version.outputs.version_name }}
 
       - name: Build web
+        continue-on-error: true
         run: flutter build web --release --base-href /
         env:
           FLUTTER_BUILD_VERSION_CODE: ${{ steps.version.outputs.version_code }}
           FLUTTER_BUILD_VERSION_NAME: ${{ steps.version.outputs.version_name }}
 
-      - name: Verifier les artefacts
-        run: |
-          set -euo pipefail
-          echo "versionCode / versionName declares par Gradle :"
-          grep -rE "versionCode|versionName" build/app/outputs/bundle/release/../ 2>/dev/null | head -1 || true
-          ls -la build/app/outputs/flutter-apk/*.apk build/app/outputs/bundle/release/*.aab
-          test -f build/web/index.html || { echo "::error::build/web/index.html introuvable"; exit 1; }
-
       - name: Collect artifacts
+        continue-on-error: true
         run: |
-          set -euo pipefail
           TAG="${{ steps.version.outputs.tag }}"
           OUT="dist/$TAG"
           mkdir -p "$OUT"
 
-          cp build/app/outputs/bundle/release/app-release.aab "$OUT/check31-$TAG.aab"
-          cp build/app/outputs/flutter-apk/app-release.apk "$OUT/check31-$TAG.apk"
-
-          for abi in arm64-v8a armeabi-v7a x86_64; do
-            src="build/app/outputs/flutter-apk/app-$abi-release.apk"
-            if [ -f "$src" ]; then
-              cp "$src" "$OUT/check31-$TAG-$abi.apk"
+          add() {
+            if [ -f "$1" ]; then
+              cp "$1" "$2"
+              echo "  + $(basename "$2")"
+            else
+              echo "  - manquant : $1"
             fi
-          done
+          }
 
-          (cd build/web && zip -q -r "$GITHUB_WORKSPACE/$OUT/check31-$TAG-web.zip" .)
+          add build/app/outputs/bundle/release/app-release.aab   "$OUT/check31-$TAG.aab"
+          add build/app/outputs/flutter-apk/app-release.apk      "$OUT/check31-$TAG.apk"
+          add build/app/outputs/flutter-apk/app-arm64-v8a-release.apk "$OUT/check31-$TAG-arm64-v8a.apk"
+          add build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk "$OUT/check31-$TAG-armeabi-v7a.apk"
+          add build/app/outputs/flutter-apk/app-x86_64-release.apk "$OUT/check31-$TAG-x86_64.apk"
 
+          if [ -f build/web/index.html ]; then
+            (cd build/web && zip -q -r "$GITHUB_WORKSPACE/$OUT/check31-$TAG-web.zip" .)
+            echo "  + check31-$TAG-web.zip"
+          else
+            echo "  - manquant : build/web/index.html"
+          fi
+
+          # Un artefact absent ne doit pas faire echouer l'etape, sinon
+          # rien ne serait publie du tout.
+          COUNT=$(find "$OUT" -type f | wc -l)
+          if [ "$COUNT" -eq 0 ]; then
+            echo "::error::aucun artefact produit, publication impossible"
+            exit 1
+          fi
+          echo "$COUNT artefact(s) pret(s) a publier :"
           ls -la "$OUT"
 
       - name: Publish GitHub Release
@@ -176,7 +192,43 @@ jobs:
             | `check31-${{ steps.version.outputs.tag }}-armeabi-v7a.apk` | vieux telephones 32 bits |
             | `check31-${{ steps.version.outputs.tag }}-x86_64.apk` | emulateur x86_64 |
             | `check31-${{ steps.version.outputs.tag }}-web.zip` | deploiement web (Firebase Hosting / Netlify) |
+
+            Seuls les fichiers reellement produits sont joints. Si une cible
+            ci-dessus est absente, son build a echoue : voir l'onglet Actions.
           files: |
             dist/${{ steps.version.outputs.tag }}/*.apk
             dist/${{ steps.version.outputs.tag }}/*.aab
             dist/${{ steps.version.outputs.tag }}/*.zip
+
+      - name: Rapport final
+        if: always()
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          OUT="dist/$TAG"
+          MISSING=0
+          {
+            echo ""
+            echo "### Artefacts"
+            echo ""
+            echo "| fichier | taille |"
+            echo "|---|---|"
+            for f in check31-$TAG.aab check31-$TAG.apk check31-$TAG-arm64-v8a.apk \
+                     check31-$TAG-armeabi-v7a.apk check31-$TAG-x86_64.apk check31-$TAG-web.zip; do
+              if [ -f "$OUT/$f" ]; then
+                echo "| \`$f\` | $(du -h "$OUT/$f" | cut -f1) |"
+              else
+                echo "| \`$f\` | **absent** |"
+                MISSING=$((MISSING + 1))
+              fi
+            done
+            echo ""
+            if [ "$MISSING" -eq 0 ]; then
+              echo "Tous les artefacts sont publies."
+            else
+              echo "**$MISSING artefact(s) absent(s)** : le build correspondant a echoue, les autres ont ete publies."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$MISSING" -gt 0 ]; then
+            echo "::warning::$MISSING artefact(s) absent(s), les autres sont publies"
+          fi
