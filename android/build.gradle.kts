@@ -1,19 +1,3 @@
-buildscript {
-    val kotlinVersion by extra("1.9.22")
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("com.android.tools.build:gradle:8.0.2")
-        classpath("com.google.firebase:firebase-crashlytics-gradle:3.0.3")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-        classpath("com.google.gms:google-services:4.3.15")
-    }
-}
-plugins {
-    id("com.google.gms.google-services") version "4.3.15" apply false
-}
 allprojects {
     repositories {
         google()

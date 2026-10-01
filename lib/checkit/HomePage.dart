@@ -671,7 +671,7 @@ class _HomePage3State extends State<HomePage3> {
                                   _showDetail = !_showDetail;
                                 });
                               },
-                              icon: Icon(
+                              icon: FaIcon(
                                 _showDetail ? FontAwesomeIcons.arrowDown : null,
                                 size: 17,
                               ),
@@ -726,7 +726,7 @@ class _HomePage3State extends State<HomePage3> {
                                 _showDetail = !_showDetail;
                               });
                             },
-                            icon: Icon(FontAwesomeIcons.arrowUp, size: 17),
+                            icon: FaIcon(FontAwesomeIcons.arrowUp, size: 17),
                           ),
                         ],
                       ),
@@ -1229,7 +1229,7 @@ class _googleBtnState extends State<googleBtn> {
                 elevation: 4.0,
                 minimumSize: const Size.fromHeight(50),
               ),
-              icon: Icon(FontAwesomeIcons.google, color: Colors.red),
+              icon: FaIcon(FontAwesomeIcons.google, color: Colors.red),
               label: const Text(
                 'Google',
                 style: TextStyle(fontSize: 24, color: Colors.white),

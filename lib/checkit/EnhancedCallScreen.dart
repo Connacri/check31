@@ -449,7 +449,7 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
                                                 () => setStateDialog(
                                                   () => _showDetail = false,
                                                 ),
-                                            icon: const Icon(
+                                            icon: const FaIcon(
                                               FontAwesomeIcons.arrowDown,
                                               size: 17,
                                             ),
@@ -493,7 +493,7 @@ class _EnhancedCallScreenState extends State<EnhancedCallScreen> {
                                                   () => setStateDialog(
                                                     () => _showDetail = true,
                                                   ),
-                                              icon: const Icon(
+                                              icon: const FaIcon(
                                                 FontAwesomeIcons.arrowUp,
                                                 size: 17,
                                               ),

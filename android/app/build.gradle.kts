@@ -1,59 +1,86 @@
-import java.util.Properties
 import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
+val hasReleaseKeystore = keystorePropertiesFile.exists()
 
-keystoreProperties.load(FileInputStream(keystorePropertiesFile)) // ligne 13
+if (hasReleaseKeystore) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
+// Permet de forcer versionCode / versionName depuis local.properties (utilise par la CI).
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+val overrideVersionCode = localProperties.getProperty("flutter.versionCode")
+val overrideVersionName = localProperties.getProperty("flutter.versionName")
 
 android {
     namespace = "com.check31.dz.check31"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
-
+    compileSdk = 36
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.check31.dz.check31"
         multiDexEnabled = true
-        minSdk = 23//flutter.minSdkVersion
-        targetSdk = 35//flutter.targetSdkVersion
-        versionCode = 15//flutter.versionCode
-        versionName = "1.0.15"//flutter.versionName
+        minSdk = flutter.minSdkVersion
+        targetSdk = 36
+        versionCode = overrideVersionCode?.toInt() ?: flutter.versionCode
+        versionName = overrideVersionName ?: flutter.versionName
     }
 
     signingConfigs {
-        create("release") {
-            storeFile = file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
+        if (hasReleaseKeystore) {
+            create("release") {
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+            }
         }
     }
 
     buildTypes {
         getByName("release") {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
         getByName("debug") {
             signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+
+    packaging {
+        resources {
+            excludes += setOf(
+                "META-INF/AL2.0",
+                "META-INF/LGPL2.1",
+            )
         }
     }
 }
@@ -61,49 +88,15 @@ android {
 flutter {
     source = "../.."
 }
-dependencies {
-    // Add the desugaring dependency
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 
-    // Import the Firebase BoM
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+
     implementation(platform("com.google.firebase:firebase-bom:33.8.0"))
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.core:core:1.12.0")
-//    implementation 'com.google.android.gms:play-services-ads:23.6.0'
-//    implementation 'org.bouncycastle:bcprov-jdk18on:1.78.1'
-    // TODO: Add the dependencies for Firebase products you want to use
-    // When using the BoM, don't specify versions in Firebase dependencies
-//    implementation("com.google.firebase:firebase-analytics")
-//    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-//    implementation 'androidx.core:core-ktx:1.15.0'
-//    implementation 'androidx.appcompat:appcompat:1.7.0'
-//    implementation 'com.google.android.material:material:1.12.0'
-//    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
-    // Dépendances Firebase
-    implementation("com.google.firebase:firebase-analytics") // Analytics (optionnel)
-    implementation("com.google.firebase:firebase-firestore") // Firestore (si utilisé)
-    implementation("com.google.firebase:firebase-auth") // Authentication (si utilisé)
-    implementation("com.google.firebase:firebase-storage") // Storage (si u
-//    implementation("com.google.android.gms:play-services-ads:23.1.0") {
-//        exclude group: 'org.bouncycastle', module: 'bcprov-jdk18on'
-//    }
-//    implementation 'org.bouncycastle:bcprov-jdk18on:1.76'
-//
-//    implementation 'com.bytedance.ies.ugc.aweme:opensdk-china-external:0.1.9.6'
-//    implementation 'com.bytedance.ies.ugc.aweme:opensdk-common:0.1.9.6'
-    // Add the dependencies for any other desired Firebase products
-    // https://firebase.google.com/docs/android/setup#available-libraries
-//}
-//dependencies {
-//    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
-//    implementation "androidx.core:core-ktx:1.15.0"
-//    implementation(platform("com.google.firebase:firebase-bom:33.8.0"))
-//    implementation("com.google.firebase:firebase-auth")
-//    implementation("com.google.android.gms:play-services-base:18.5.0")
-//    implementation("com.google.firebase:firebase-analytics")
-//    implementation("androidx.multidex:multidex:2.0.1")
-//    implementation("io.objectbox:objectbox-java:4.0.3")
-//    implementation("io.objectbox:objectbox-android:4.0.3")
-//    debugImplementation("io.objectbox:objectbox-android-objectbrowser:4.0.3")
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-storage")
 }

@@ -1,0 +1,154 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag de la release (ex: v1.0.16). Vide = version du pubspec.yaml'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+env:
+  JAVA_VERSION: '17'
+  FLUTTER_VERSION: '3.44.0'
+
+jobs:
+  release:
+    name: Build APK / AAB / Web
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: version
+        run: |
+          set -euo pipefail
+          PUB_LINE=$(grep -E '^version:' pubspec.yaml | head -n1)
+          PUB_NAME=$(echo "$PUB_LINE" | sed -E 's/^version:[[:space:]]*//' | cut -d'+' -f1)
+          PUB_CODE=$(echo "$PUB_LINE" | sed -E 's/^version:[[:space:]]*//' | cut -d'+' -f2)
+
+          TAG="${{ github.event.inputs.tag }}"
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          fi
+          if [ -z "$TAG" ]; then
+            TAG="v${PUB_NAME}"
+          fi
+
+          NAME="${TAG#v}"
+          CODE=$(echo "$NAME" | tr -cd '0-9')
+          if [ -z "$CODE" ]; then
+            CODE="${PUB_CODE}"
+          fi
+
+          echo "tag=${TAG}"                     >> "$GITHUB_OUTPUT"
+          echo "version_name=${NAME}"           >> "$GITHUB_OUTPUT"
+          echo "version_code=${CODE}"           >> "$GITHUB_OUTPUT"
+          {
+            echo "### Release \`${TAG}\`"
+            echo ""
+            echo "| champ | valeur |"
+            echo "|---|---|"
+            echo "| versionName | \`${NAME}\` |"
+            echo "| versionCode | \`${CODE}\` |"
+            echo "| commit | \`${GITHUB_SHA}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Pub get
+        run: flutter pub get
+
+      - name: Decode keystore
+        run: |
+          set -euo pipefail
+          if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+            echo "::warning title=Keystore manquant::ANDROID_KEYSTORE_BASE64 non defini -> APK/AAB signes avec la cle debug. L'AAB ne sera pas publiable sur Google Play."
+            exit 0
+          fi
+          printf '%s' "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/upload-keystore.jks
+          {
+            echo "storeFile=../upload-keystore.jks"
+            echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}"
+            echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}"
+            echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}"
+          } > android/key.properties
+          echo "Keystore dechiffre : alias ${{ secrets.ANDROID_KEY_ALIAS }}"
+
+      - name: Build APK universal
+        run: flutter build apk --release
+
+      - name: Build APKs split par ABI
+        run: flutter build apk --release --split-per-abi
+
+      - name: Build AAB (Google Play)
+        run: flutter build appbundle --release
+
+      - name: Build web
+        run: flutter build web --release --base-href /
+
+      - name: Collect artifacts
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.version.outputs.tag }}"
+          OUT="dist/$TAG"
+          mkdir -p "$OUT"
+
+          cp build/app/outputs/bundle/release/app-release.aab "$OUT/check31-$TAG.aab"
+          cp build/app/outputs/flutter-apk/app-release.apk "$OUT/check31-$TAG.apk"
+
+          for abi in arm64-v8a armeabi-v7a x86_64; do
+            src="build/app/outputs/flutter-apk/app-$abi-release.apk"
+            if [ -f "$src" ]; then
+              cp "$src" "$OUT/check31-$TAG-$abi.apk"
+            fi
+          done
+
+          (cd build/web && zip -q -r "$GITHUB_WORKSPACE/$OUT/check31-$TAG-web.zip" .)
+
+          ls -la "$OUT"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Check-it ${{ steps.version.outputs.tag }}
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.tag, '-') }}
+          body: |
+            versionName `${{ steps.version.outputs.version_name }}` · versionCode `${{ steps.version.outputs.version_code }}`
+
+            | fichier | usage |
+            |---|---|
+            | `check31-${{ steps.version.outputs.tag }}.aab` | **Google Play Console** (upload de la release) |
+            | `check31-${{ steps.version.outputs.tag }}.apk` | installation directe (tous les.cpu) |
+            | `check31-${{ steps.version.outputs.tag }}-arm64-v8a.apk` | telephones Android modernes |
+            | `check31-${{ steps.version.outputs.tag }}-armeabi-v7a.apk` | vieux telephones 32 bits |
+            | `check31-${{ steps.version.outputs.tag }}-x86_64.apk` | emulateur x86_64 |
+            | `check31-${{ steps.version.outputs.tag }}-web.zip` | deploiement web (Firebase Hosting / Netlify) |
+          files: |
+            dist/${{ steps.version.outputs.tag }}/*.apk
+            dist/${{ steps.version.outputs.tag }}/*.aab
+            dist/${{ steps.version.outputs.tag }}/*.zip
