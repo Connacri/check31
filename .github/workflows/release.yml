@@ -14,6 +14,12 @@ on:
 permissions:
   contents: write
 
+# Deux pushes rapproches ne justifient pas deux builds complets.
+# Le run en cours est annule au profit du nouveau.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   JAVA_VERSION: '17'
   FLUTTER_VERSION: '3.44.0'
