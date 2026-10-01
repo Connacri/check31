@@ -2,8 +2,8 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       tag:
@@ -37,23 +37,24 @@ jobs:
           PUB_NAME=$(echo "$PUB_LINE" | sed -E 's/^version:[[:space:]]*//' | cut -d'+' -f1)
           PUB_CODE=$(echo "$PUB_LINE" | sed -E 's/^version:[[:space:]]*//' | cut -d'+' -f2)
 
+          # Un push = une release. Le numero de run garantit un tag unique et
+          # un versionCode strictement croissant, ce que Google Play exige.
           TAG="${{ github.event.inputs.tag }}"
-          if [ "${{ github.event_name }}" = "push" ]; then
-            TAG="${GITHUB_REF#refs/tags/}"
-          fi
+          CODE="${{ github.run_number }}"
           if [ -z "$TAG" ]; then
-            TAG="v${PUB_NAME}"
+            TAG="v${PUB_NAME}-build${GITHUB_RUN_NUMBER}"
+          else
+            TAG="${TAG}"
+            CODE=$(echo "${TAG#v}" | tr -cd '0-9')
+            if [ -z "$CODE" ]; then
+              CODE="${PUB_CODE}"
+            fi
           fi
+          NAME="${TAG%%+*}"
 
-          NAME="${TAG#v}"
-          CODE=$(echo "$NAME" | tr -cd '0-9')
-          if [ -z "$CODE" ]; then
-            CODE="${PUB_CODE}"
-          fi
-
-          echo "tag=${TAG}"                     >> "$GITHUB_OUTPUT"
-          echo "version_name=${NAME}"           >> "$GITHUB_OUTPUT"
-          echo "version_code=${CODE}"           >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}"          >> "$GITHUB_OUTPUT"
+          echo "version_name=${NAME}" >> "$GITHUB_OUTPUT"
+          echo "version_code=${CODE}" >> "$GITHUB_OUTPUT"
           {
             echo "### Release \`${TAG}\`"
             echo ""
@@ -62,6 +63,7 @@ jobs:
             echo "| versionName | \`${NAME}\` |"
             echo "| versionCode | \`${CODE}\` |"
             echo "| commit | \`${GITHUB_SHA}\` |"
+            echo "| auteur | \`${{ github.actor }}\` |"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Setup Java
@@ -98,15 +100,35 @@ jobs:
 
       - name: Build APK universal
         run: flutter build apk --release
+        env:
+          FLUTTER_BUILD_VERSION_CODE: ${{ steps.version.outputs.version_code }}
+          FLUTTER_BUILD_VERSION_NAME: ${{ steps.version.outputs.version_name }}
 
       - name: Build APKs split par ABI
         run: flutter build apk --release --split-per-abi
+        env:
+          FLUTTER_BUILD_VERSION_CODE: ${{ steps.version.outputs.version_code }}
+          FLUTTER_BUILD_VERSION_NAME: ${{ steps.version.outputs.version_name }}
 
       - name: Build AAB (Google Play)
         run: flutter build appbundle --release
+        env:
+          FLUTTER_BUILD_VERSION_CODE: ${{ steps.version.outputs.version_code }}
+          FLUTTER_BUILD_VERSION_NAME: ${{ steps.version.outputs.version_name }}
 
       - name: Build web
         run: flutter build web --release --base-href /
+        env:
+          FLUTTER_BUILD_VERSION_CODE: ${{ steps.version.outputs.version_code }}
+          FLUTTER_BUILD_VERSION_NAME: ${{ steps.version.outputs.version_name }}
+
+      - name: Verifier les artefacts
+        run: |
+          set -euo pipefail
+          echo "versionCode / versionName declares par Gradle :"
+          grep -rE "versionCode|versionName" build/app/outputs/bundle/release/../ 2>/dev/null | head -1 || true
+          ls -la build/app/outputs/flutter-apk/*.apk build/app/outputs/bundle/release/*.aab
+          test -f build/web/index.html || { echo "::error::build/web/index.html introuvable"; exit 1; }
 
       - name: Collect artifacts
         run: |

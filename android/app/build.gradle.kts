@@ -16,14 +16,11 @@ if (hasReleaseKeystore) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
-// Permet de forcer versionCode / versionName depuis local.properties (utilise par la CI).
-val localProperties = Properties()
-val localPropertiesFile = rootProject.file("local.properties")
-if (localPropertiesFile.exists()) {
-    localProperties.load(FileInputStream(localPropertiesFile))
-}
-val overrideVersionCode = localProperties.getProperty("flutter.versionCode")
-val overrideVersionName = localProperties.getProperty("flutter.versionName")
+// La CI force le versionCode / versionName via ces variables d'environnement.
+// Flutter ecrase flutter.versionCode dans local.properties a chaque build avec la
+// version du pubspec.yaml, il faut donc passer par l'environnement pour avoir gain.
+val overrideVersionCode = System.getenv("FLUTTER_BUILD_VERSION_CODE")
+val overrideVersionName = System.getenv("FLUTTER_BUILD_VERSION_NAME")
 
 android {
     namespace = "com.check31.dz.check31"
