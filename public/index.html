@@ -394,6 +394,17 @@
             transform: translateY(-3px);
         }
 
+        .download-btn-ghost {
+            background-color: transparent;
+            color: var(--purple-primary);
+            border: 2px solid var(--purple-primary);
+        }
+
+        .download-btn-ghost:hover {
+            background-color: var(--purple-primary);
+            color: var(--light);
+        }
+
         .download-btn i {
             font-size: 24px;
             margin-right: 10px;
@@ -788,6 +799,12 @@
                        href="https://play.google.com/store/apps/details?id=com.check31.dz.check31&pcampaignid=web_share">
                         <i class="fab fa-android"></i>
                         <span>Télécharger l'Application Check-it</span>
+                    </a>
+
+                    <a class="download-btn download-btn-ghost"
+                       href="https://github.com/Connacri/check31/releases/latest">
+                        <i class="fab fa-github"></i>
+                        <span>Télécharger l'APK (GitHub Releases)</span>
                     </a>
                     <p>Scanner le QR code pour télécharger directement</p>
                 </div>
