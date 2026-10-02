@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag de la release (ex: v1.0.16). Vide = version du pubspec.yaml'
+        description: 'Tag de la release (ex: v1.0.16-build16). Vide = tag deduit de pubspec.yaml'
         required: false
         default: ''
 
@@ -43,18 +43,13 @@ jobs:
           PUB_NAME=$(echo "$PUB_LINE" | sed -E 's/^version:[[:space:]]*//' | cut -d'+' -f1)
           PUB_CODE=$(echo "$PUB_LINE" | sed -E 's/^version:[[:space:]]*//' | cut -d'+' -f2)
 
-          # Un push = une release. Le numero de run garantit un tag unique et
-          # un versionCode strictement croissant, ce que Google Play exige.
+          # Google Play refuse un versionCode deja utilise : c'est le nombre
+          # apres le + de pubspec.yaml qui fait autorite. Il faut l'incrementer
+          # a chaque release, sinon l'upload est rejete.
+          CODE="$PUB_CODE"
           TAG="${{ github.event.inputs.tag }}"
-          CODE="${{ github.run_number }}"
           if [ -z "$TAG" ]; then
-            TAG="v${PUB_NAME}-build${GITHUB_RUN_NUMBER}"
-          else
-            TAG="${TAG}"
-            CODE=$(echo "${TAG#v}" | tr -cd '0-9')
-            if [ -z "$CODE" ]; then
-              CODE="${PUB_CODE}"
-            fi
+            TAG="v${PUB_NAME}-build${PUB_CODE}"
           fi
           NAME="${TAG%%+*}"
 
@@ -71,6 +66,29 @@ jobs:
             echo "| commit | \`${GITHUB_SHA}\` |"
             echo "| auteur | \`${{ github.actor }}\` |"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # Google Play refuse un versionCode deja utilise. On verifie donc que le
+      # numero du pubspec.yaml depasse tous ceux deja liberes, avant de spendre
+      # un build complet sur un artefact que le Play Console refusera.
+      - name: Guard versionCode
+        run: |
+          set -euo pipefail
+          CODE="${{ steps.version.outputs.version_code }}"
+          if ! printf '%s' "$CODE" | grep -Eq '^[0-9]+$'; then
+            echo "::error::versionCode invalide '$CODE'. Ecrire 'version: x.y.z+N' dans pubspec.yaml."
+            exit 1
+          fi
+          MAX=$(git ls-remote --tags origin 'v*-build*' \
+            | sed -E 's|.*refs/tags/.*-build([0-9]+)$|\1|' \
+            | grep -E '^[0-9]+$' \
+            | sort -n \
+            | tail -n1 || true)
+          MAX="${MAX:-0}"
+          if [ "$CODE" -le "$MAX" ]; then
+            echo "::error::versionCode $CODE deja utilise (max publie : $MAX). Incrementer le nombre apres le + dans pubspec.yaml, puis pusher."
+            exit 1
+          fi
+          echo "versionCode $CODE > $MAX :OK"
 
       - name: Setup Java
         uses: actions/setup-java@v4

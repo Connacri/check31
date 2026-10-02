@@ -15,6 +15,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -47,6 +48,7 @@ class _HomePage3State extends State<HomePage3> {
   bool _showDetail = true;
   bool _showSignalBtn = true;
   String? numeroRecherche;
+  String _appVersion = '';
 
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
@@ -123,6 +125,12 @@ class _HomePage3State extends State<HomePage3> {
   void initState() {
     super.initState();
     _user = FirebaseAuth.instance.currentUser;
+    PackageInfo.fromPlatform().then((info) {
+      if (!mounted) return;
+      setState(() {
+        _appVersion = '${info.version}+${info.buildNumber}';
+      });
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadUsersAsync();
     });
@@ -561,7 +569,7 @@ class _HomePage3State extends State<HomePage3> {
                             ),
                           ),
                           applicationName: 'Check-it',
-                          applicationVersion: '1.0.6',
+                          applicationVersion: _appVersion,
                           applicationLegalese: '© 2025 Inturk Oran',
 
                           children: [

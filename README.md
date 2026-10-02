@@ -158,6 +158,22 @@ clé debug. Un AAB signé en debug est refusé par Google Play.
 
 ## Build et release
 
+### Version
+
+`pubspec.yaml` est la **seule** source de vérité de la version :
+
+```yaml
+version: 1.0.16+16   # versionName + versionCode
+```
+
+Android (`android/app/build.gradle.kts`), iOS (`ios/Runner/Info.plist`) et le
+dialogue « À propos » de l'application (`lib/checkit/HomePage.dart`, via
+`package_info_plus`) lisent tous cette valeur. Le workflow de release la relit
+pour nommer le tag Git et forcer le `versionCode` des quatre builds.
+
+Google Play refuse un `versionCode` déjà utilisé : **incrémenter le nombre après
+le `+` avant chaque push sur `main`**.
+
 **Aucun build n'est produit en local.** Tout part de GitHub Actions.
 
 Chaque `push` sur `main` déclenche `.github/workflows/release.yml`, qui compile et
@@ -176,9 +192,7 @@ publie une GitHub Release :
 git push origin main          # déclenche le build
 ```
 
-Le tag est `v<version>-build<numéro_de_run>`, donc unique par push et jamais
-écrasé. Le `versionCode` est le numéro de run : strictement croissant, ce qu'exige
-Play Console.
+Le tag est `v<versionName>-build<versionCode>`, déduit de `pubspec.yaml`.
 
 ### Secrets requis
 
